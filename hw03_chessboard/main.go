@@ -26,7 +26,7 @@ func size() int {
 			if yesno("Попробовать еще раз:") {
 				continue
 			} else {
-				fmt.Printf("... на нет и спроса нет, тогда будет всё %d", 8)
+				fmt.Println("... на нет и спроса нет, тогда 8")
 				return 8
 			}
 		}
@@ -36,8 +36,8 @@ func size() int {
 }
 
 func draw(x, y int) {
-	var hash, pipe = "#", "|"
-    for i := 0; i < y; i++ {
+	hash, pipe := "#", "|"
+	for i := 0; i < y; i++ {
 		for j := 0; j < x; j++ {
 			fmt.Printf("%s", pipe)
 			if j%2 == i%2 {
@@ -55,6 +55,6 @@ func main() {
 	x := size()
 	fmt.Print("Введите количество столбцов: ")
 	y := size()
-	fmt.Println(x, y)
+	fmt.Println("Ниже вывод доски размером", x, "x", y)
 	draw(x, y)
 }
