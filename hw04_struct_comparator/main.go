@@ -18,8 +18,10 @@ type Book struct {
 // var book2 = Book{1594206015, 2020, 340, 4.5, "Dark Mirror", "Edward Snowden"}
 // var book3 = Book{1593275900, 2014, 192, 4.6, "Black Hat Python", "Justin Seitz"}
 // var book4 = Book{1718501129, 2021, 216, 4.6, "Black Hat Python 2", "Justin Seitz"}
-var books = []Book{}
-var path = "books.json"
+var (
+	books = []Book{}
+	path  = "books.json"
+)
 
 type BookData uint8
 
@@ -115,7 +117,7 @@ func main() {
 		books, e := getBooks()
 		if e != nil {
 			fmt.Println("Ошибка при получении книг")
-			if yesno("Попробовать еще раз:")  {
+			if yesno("Попробовать еще раз:") {
 				fmt.Println("continue")
 				continue
 			} else {
@@ -130,7 +132,6 @@ func main() {
 			fmt.Println("\nСписок книг для сравнения:")
 			for _, book := range books {
 				fmt.Printf("%+v\n", book)
-
 			}
 			selectedBookIndex := getBookDetail()
 			fmt.Print("Сравниваем \"", BookData(selectedBookIndex), "\": ")
