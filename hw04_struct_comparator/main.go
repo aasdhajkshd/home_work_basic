@@ -7,26 +7,8 @@ import (
 	"strings"
 )
 
-type Book struct {
-	ID            uint64
-	Year, Size    rune
-	Rate          float32
-	Title, Author string
-}
-
-// var book1 = Book{1250237238, 2019, 263, 4.7, "Permanent Record", "Edward Snowden"}
-// var book2 = Book{1594206015, 2020, 340, 4.5, "Dark Mirror", "Edward Snowden"}
-// var book3 = Book{1593275900, 2014, 192, 4.6, "Black Hat Python", "Justin Seitz"}
-// var book4 = Book{1718501129, 2021, 216, 4.6, "Black Hat Python 2", "Justin Seitz"}
-var (
-	books = []Book{}
-	path  = "books.json"
-)
-
-type BookData uint8
-
 const (
-	ID BookData = iota
+	ID CompareType = iota
 	Year
 	Size
 	Rate
@@ -34,11 +16,74 @@ const (
 	Author
 )
 
+type Book struct {
+	id            uint64
+	year, size    rune
+	rate          float32
+	title, author string
+}
+
+type CompareType uint8
+
+type Comparator struct {
+	Type CompareType
+}
+
+var path = "books.json"
+
+func (b *Book) Id() uint64 {
+	return b.id
+}
+
+func (b *Book) Year() rune {
+	return b.year
+}
+
+func (b *Book) Size() rune {
+	return b.size
+}
+
+func (b *Book) Rate() float32 {
+	return b.rate
+}
+
+func (b *Book) Title() string {
+	return b.title
+}
+
+func (b *Book) Author() string {
+	return b.author
+}
+
+func (b *Book) SetId(id uint64) {
+	b.id = id
+}
+
+func (b *Book) SetYear(year rune) {
+	b.year = year
+}
+
+func (b *Book) SetSize(size rune) {
+	b.year = size
+}
+
+func (b *Book) SetRate(rate float32) {
+	b.rate = rate
+}
+
+func (b *Book) SetTitle(title string) {
+	b.title = title
+}
+
+func (b *Book) SetAuthor(author string) {
+	b.author = author
+}
+
 func flushBuffers() {
 	bufio.NewScanner(os.Stdin).Scan() // flush input buffer in case of errored fmt.Fscanf
 }
 
-func yesno(question string) bool {
+func YesNo(question string) bool {
 	fmt.Printf("%s [y/n]: ", question)
 	s := bufio.NewScanner(os.Stdin)
 	s.Scan()
@@ -46,8 +91,8 @@ func yesno(question string) bool {
 	return strings.ToLower(strings.TrimSpace(s.Text())) == "y"
 }
 
-func (b BookData) String() string {
-	switch b {
+func (t CompareType) String() string {
+	switch t {
 	case ID:
 		return "Номер ISBN"
 	case Year:
@@ -65,39 +110,54 @@ func (b BookData) String() string {
 	}
 }
 
-func (b BookData) StringRU() string {
-	BookInfo := [...]string{"Номер ISBN", "Год издания", "Количество страниц", "Рейтинг", "Название", "Автор"}[b]
-	return BookInfo
-}
-
-func (b BookData) EnumIndex() uint8 {
-	return uint8(b)
-}
-
-func getBookDetail() uint8 {
-	var bookValue uint8
-	fmt.Println("\nПо какому полю выполнить сравнение, доступные варианты: ")
-	publishingDetails := []BookData{ID, Year, Size, Rate}
-	for bookIndex, bookDetail := range publishingDetails {
-		fmt.Print("[", bookIndex, "] - ", bookDetail.String(), "\n")
+func selectBookType(t CompareType) *Comparator {
+	return &Comparator{
+		Type: t,
 	}
-	fmt.Fscanln(os.Stdin, &bookValue)
-	fmt.Println("Вы выбрали:", bookValue)
-	return bookValue
 }
 
-func getBooks() ([]Book, error) {
-	var book Book
-	fmt.Print("(Номер ISBN, Год издания, Кол-во страниц, Рейтинг, \"Название\", \"Автор\"): ")
-	_, e := fmt.Fscanf(os.Stdin, "%d, %d, %d, %f, %q, %q", &book.ID, &book.Year, &book.Size, &book.Rate, &book.Title, &book.Author)
-	if e != nil {
-		fmt.Println("Ошибка при сканировании:", e)
+func (c Comparator) Compare(bookOne, bookTwo Book) bool {
+	switch c.Type {
+	case ID:
+		return bookOne.Id() > bookTwo.Id()
+	case Year:
+		return bookOne.Year() > bookTwo.Year()
+	case Size:
+		return bookOne.Size() > bookTwo.Size()
+	case Rate:
+		return bookOne.Rate() > bookTwo.Rate()
+	default:
+		return false
+	}
+}
+
+func (b *Book) populateBook() error {
+	if YesNo("Желаете добавить книги одной строкой:") {
+		fmt.Println("Укажите информацию через запятую,")
+		fmt.Print("(Номер ISBN, Год издания, Кол-во страниц, Рейтинг, \"Название\", \"Автор\"): ")
+		_, e := fmt.Fscanf(os.Stdin, "%d, %d, %d, %f, %q, %q", &b.id, &b.year, &b.size, &b.rate, &b.title, &b.author)
+		flushBuffers()
+		fmt.Println(e)
+		if e != nil {
+			fmt.Println("Ошибка обработки данных")
+			return e
+		}
 	} else {
-		books = append(books, book)
-		fmt.Println(books)
+		fmt.Print("Введите информацию о книге:\n")
+		fmt.Print("Номер ISBN: ")
+		fmt.Scanln(&b.id)
+		fmt.Print("Год издания: ")
+		fmt.Scanln(&b.year)
+		fmt.Print("Количество страниц: ")
+		fmt.Scanln(&b.size)
+		fmt.Print("Рейтинг: ")
+		fmt.Scanln(&b.rate)
+		fmt.Print("Название: ")
+		fmt.Scanln(&b.title)
+		fmt.Print("Автор: ")
+		fmt.Scanln(&b.author)
 	}
-	flushBuffers()
-	return books, e
+	return nil
 }
 
 func fileExists(filePath string) bool {
@@ -112,41 +172,34 @@ func saveJSON(filePath string) {
 }
 
 func main() {
-	for i := 0; i < 6; i++ {
-		fmt.Println("Укажите информацию по книге через запятую:")
-		books, e := getBooks()
-		if e != nil {
-			fmt.Println("Ошибка при получении книг")
-			if yesno("Попробовать еще раз:") {
-				fmt.Println("continue")
-				continue
-			} else {
-				fmt.Println("break")
-				break
-			}
-		}
-		if len(books) == 1 {
-			fmt.Println("Для сравнения нужна вторая книга...")
-		}
-		if len(books) == 2 {
-			fmt.Println("\nСписок книг для сравнения:")
-			for _, book := range books {
-				fmt.Printf("%+v\n", book)
-			}
-			selectedBookIndex := getBookDetail()
-			fmt.Print("Сравниваем \"", BookData(selectedBookIndex), "\": ")
-			switch selectedBookIndex {
-			case 0:
-				fmt.Println(books[0].Title, ":", books[0].ID, "больше", books[1].Title, ":", books[1].ID, "=", books[0].ID > books[1].ID)
-			case 1:
-				fmt.Println(books[0].Title, ":", books[0].Year, "больше", books[1].Title, ":", books[1].Year, "=", books[0].Year > books[1].Year)
-			case 2:
-				fmt.Println(books[0].Title, ":", books[0].Size, "больше", books[1].Title, ":", books[1].Size, "=", books[0].Size > books[1].Size)
-			case 3:
-				fmt.Println(books[0].Title, ":", books[0].Rate, "больше", books[1].Title, ":", books[1].Rate, "=", books[0].Rate > books[1].Rate)
-			}
-			break
+	bookOne, bookTwo := Book{}, Book{}
+	if bookOne.populateBook() == nil && bookTwo.populateBook() == nil {
+		fmt.Println("Вывод книг для проверки:")
+		fmt.Printf("bookOne: %+v\n", bookOne)
+		fmt.Printf("bookTwo: %+v\n", bookTwo)
+	} else {
+		fmt.Println("Выпал шанс ввести вручную, произошла ошибка, придётся устанавливать предопределенные значения:")
+		bookOne = Book{1250237238, 2019, 263, 4.7, "Permanent Record", "Edward Snowden"}
+		bookTwo = Book{1718501129, 2021, 216, 4.6, "Black Hat Python 2", "Justin Seitz"}
+		books := []Book{bookOne, bookTwo}
+		for _, book := range books {
+			fmt.Printf("%+v\n", book)
 		}
 	}
+	var bookValue uint8
+	fmt.Println("\nПо какому полю выполнить сравнение, доступные варианты: ")
+	publishingDetails := []CompareType{ID, Year, Size, Rate}
+	for bookIndex, bookType := range publishingDetails {
+		fmt.Print("[", bookIndex, "] - ", bookType.String(), "\n")
+	}
+	fmt.Fscanln(os.Stdin, &bookValue)
+	fmt.Println("Вы выбрали:", publishingDetails[bookValue])
+	comparator := selectBookType(publishingDetails[bookValue])
+	resultOfCompare := comparator.Compare
+	fmt.Printf("Сравнивая \"%s\", у книги \"%s\" больше, чем у \"%s\": \n", comparator.Type.String(), bookOne.title, bookTwo.title)
+	fmt.Println("===================")
+	fmt.Println("Результат: ", resultOfCompare(bookOne, bookTwo))
+	fmt.Println("===================")
+	os.Exit(0)
 	saveJSON(path)
 }
