@@ -1,12 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"log"
 	"math"
 	"os"
 	"reflect"
-	"errors"
-	"log"
 )
 
 type Shape interface {
@@ -96,7 +96,7 @@ func main() {
 		fmt.Printf("Круг: радиус %.2f\nПлощадь: %.2f\n", radiusValue, circleArea)
 	}
 	fmt.Println()
-	
+
 	a := 5.2
 	b := 6.4
 	rectangleShape := Rectangle{a, b}
@@ -111,11 +111,11 @@ func main() {
 	fmt.Printf("Треугольник: длины сторон %.1f, %.1f, %.1f ", a, b, c)
 	if !triangleShape.IsTriangle() {
 		fmt.Printf("\nДля того чтобы треугольник существовал, сумма длин любых \n" +
-				   "двух его сторон должна быть больше длины третьей стороны.\n" +
-				   "Если это условие не выполняется, то треугольник невозможен.\n")
+			"двух его сторон должна быть больше длины третьей стороны.\n" +
+			"Если это условие не выполняется, то треугольник невозможен.\n")
 
 		fmt.Println("Для закрепления материала, воспользуемся Setter'ом, установим, что \n" +
-		            "Треугольник: длины сторон 4.1, 5.2, 6")
+			"Треугольник: длины сторон 4.1, 5.2, 6")
 		triangleShape.SetTriangleSides(4.1, 5.2, 6)
 	}
 	if triangleArea, err := calculateArea(triangleShape); err == nil {
