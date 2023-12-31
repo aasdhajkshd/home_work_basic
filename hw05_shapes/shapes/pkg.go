@@ -57,5 +57,5 @@ func (t Triangle) Area() float64 {
 }
 
 func ValidateTriangle(a, b, c float64) bool {
-	return a <= (b + c) && b <= (a + c) && c <= (a + b) == true                // validate traiable by sides' values
+	return a <= (b + c) && b <= (a + c) && c <= (a + b)                        // validate traiable by sides' values
 }
