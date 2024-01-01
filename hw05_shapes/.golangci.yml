@@ -1,6 +1,0 @@
-linters:
-  disable:
-    - lll
-    - revive
-    - govet
-    - unused
