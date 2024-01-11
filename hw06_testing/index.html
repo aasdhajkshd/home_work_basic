@@ -1,0 +1,499 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>chessboard: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/aasdhajkshd/home_work_basic/hw06_testing/chessboard/main.go (33.3%)</option>
+				
+				<option value="file1">github.com/aasdhajkshd/home_work_basic/hw06_testing/comparator/main.go (67.6%)</option>
+				
+				<option value="file2">github.com/aasdhajkshd/home_work_basic/hw06_testing/fixapp/main.go (86.7%)</option>
+				
+				<option value="file3">github.com/aasdhajkshd/home_work_basic/hw06_testing/shapes/main.go (86.1%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package chessboard
+
+import (
+        "fmt"
+        "log"
+        "os"
+        "strings"
+)
+
+func YesNo(question string) bool <span class="cov0" title="0">{
+        fmt.Printf("%s [y/n]: ", question)
+
+        _, e := fmt.Fscan(os.Stdin, &amp;question)
+        if e != nil </span><span class="cov0" title="0">{
+                log.Fatal(e)
+        }</span>
+        <span class="cov0" title="0">return strings.ToLower(strings.TrimSpace(question)) == "y"</span>
+}
+
+func DrawChessBoard(x, y int) error <span class="cov8" title="1">{
+        if x &lt; 2 || y &lt; 2 || x &gt; 12 || y &gt; 12 </span><span class="cov8" title="1">{
+                return fmt.Errorf("incompatiple board values: %d x %d", x, y)
+        }</span>
+        <span class="cov8" title="1">for i := 0; i &lt; y; i++ </span><span class="cov8" title="1">{
+                for j := 0; j &lt; x; j++ </span><span class="cov8" title="1">{
+                        fmt.Printf("%s", "|")
+                        if j%2 == i%2 </span><span class="cov8" title="1">{
+                                fmt.Printf("%s", "#")
+                        }</span> else<span class="cov8" title="1"> {
+                                fmt.Printf(" ")
+                        }</span>
+                }
+                <span class="cov8" title="1">fmt.Println("|")</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func SizeOfBoard() int <span class="cov0" title="0">{
+        answer := 8
+        for i := 0; i &lt; 3; i++ </span><span class="cov0" title="0">{ // три попытки на неверный ввод, так как ожидается цифра
+                _, e := fmt.Fscanln(os.Stdin, &amp;answer) // сюда еще добавить ограничение по цифре по range
+                if e != nil </span><span class="cov0" title="0">{
+                        fmt.Println("Ошибка:", e)
+                        if YesNo("Попробовать еще раз:") </span><span class="cov0" title="0">{ // здесь можно ответить и нет, тогда уходим в else
+                                continue</span>
+                        }
+                }
+                <span class="cov0" title="0">break</span>
+        }
+        <span class="cov0" title="0">return answer</span>
+}
+
+func ChessBoard() <span class="cov0" title="0">{
+        fmt.Print("Введите количество ячеек: ") // строк
+        x := SizeOfBoard()
+        // fmt.Print("Введите количество столбцов: ")
+        y := x
+        fmt.Println("Ниже вывод доски размером", x, "x", y)
+        if err := DrawChessBoard(x, y); err != nil </span><span class="cov0" title="0">{
+                fmt.Println(err)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package comparator
+
+import (
+        "bufio"
+        "fmt"
+        "os"
+        "strings"
+)
+
+const (
+        ID CompareType = iota
+        Year
+        Size
+        Rate
+        Title
+        Author
+)
+
+type Book struct {
+        id            uint64
+        year, size    rune
+        rate          float32
+        title, author string
+}
+
+type CompareType uint8
+
+type Comparator struct {
+        Type CompareType
+}
+
+func (b *Book) Id() uint64 <span class="cov0" title="0">{
+        return b.id
+}</span>
+
+func (b *Book) Year() rune <span class="cov8" title="1">{
+        return b.year
+}</span>
+
+func (b *Book) Size() rune <span class="cov8" title="1">{
+        return b.size
+}</span>
+
+func (b *Book) Rate() float32 <span class="cov8" title="1">{
+        return b.rate
+}</span>
+
+func (b *Book) Title() string <span class="cov0" title="0">{
+        return b.title
+}</span>
+
+func (b *Book) Author() string <span class="cov0" title="0">{
+        return b.author
+}</span>
+
+func (b *Book) SetId(id uint64) <span class="cov0" title="0">{
+        b.id = id
+}</span>
+
+func (b *Book) SetYear(year rune) <span class="cov0" title="0">{
+        b.year = year
+}</span>
+
+func (b *Book) SetSize(size rune) <span class="cov0" title="0">{
+        b.year = size
+}</span>
+
+func (b *Book) SetRate(rate float32) <span class="cov0" title="0">{
+        b.rate = rate
+}</span>
+
+func (b *Book) SetTitle(title string) <span class="cov0" title="0">{
+        b.title = title
+}</span>
+
+func (b *Book) SetAuthor(author string) <span class="cov0" title="0">{
+        b.author = author
+}</span>
+
+func flushBuffers() <span class="cov0" title="0">{
+        bufio.NewScanner(os.Stdin).Scan() // flush input buffer in case of errored fmt.Fscanf
+}</span>
+
+func YesNo(question string) bool <span class="cov8" title="1">{
+        fmt.Printf("%s [y/n]: ", question)
+        s := bufio.NewScanner(os.Stdin)
+        s.Scan()
+        fmt.Println(s.Text())
+        return strings.ToLower(strings.TrimSpace(s.Text())) == "y"
+}</span>
+
+func (t CompareType) String() string <span class="cov8" title="1">{
+        switch t </span>{
+        case ID:<span class="cov8" title="1">
+                return "Номер ISBN"</span>
+        case Year:<span class="cov8" title="1">
+                return "Год издания"</span>
+        case Size:<span class="cov8" title="1">
+                return "Количество страниц"</span>
+        case Rate:<span class="cov8" title="1">
+                return "Рейтинг"</span>
+        case Title:<span class="cov0" title="0">
+                return "Название"</span>
+        case Author:<span class="cov0" title="0">
+                return "Автор"</span>
+        default:<span class="cov0" title="0">
+                return "Неизвестное поле"</span>
+        }
+}
+
+func selectBookType(t CompareType) *Comparator <span class="cov8" title="1">{
+        return &amp;Comparator{
+                Type: t,
+        }
+}</span>
+
+func (c Comparator) Compare(bookOne, bookTwo Book) bool <span class="cov8" title="1">{
+        switch c.Type </span>{
+        case ID:<span class="cov0" title="0">
+                return bookOne.Id() &gt; bookTwo.Id()</span>
+        case Year:<span class="cov8" title="1">
+                return bookOne.Year() &gt; bookTwo.Year()</span>
+        case Size:<span class="cov8" title="1">
+                return bookOne.Size() &gt; bookTwo.Size()</span>
+        case Rate:<span class="cov8" title="1">
+                return bookOne.Rate() &gt; bookTwo.Rate()</span>
+        default:<span class="cov0" title="0">
+                return false</span>
+        }
+}
+
+func (b *Book) PopulateBook() error <span class="cov8" title="1">{
+        if YesNo("Желаете добавить книги одной строкой:") </span><span class="cov0" title="0">{
+                fmt.Println("Укажите информацию через запятую,")
+                fmt.Print("(Номер ISBN, Год издания, Кол-во страниц, Рейтинг, \"Название\", \"Автор\"): ")
+                _, e := fmt.Fscanf(os.Stdin, "%d, %d, %d, %f, %q, %q", &amp;b.id, &amp;b.year, &amp;b.size, &amp;b.rate, &amp;b.title, &amp;b.author)
+                flushBuffers()
+                fmt.Println(e)
+                if e != nil </span><span class="cov0" title="0">{
+                        fmt.Println("Ошибка обработки данных")
+                        return e
+                }</span>
+        } else<span class="cov8" title="1"> {
+                fmt.Print("Введите информацию о книге:\n")
+                fmt.Print("Номер ISBN: ")
+                fmt.Scanln(&amp;b.id)
+                fmt.Print("Год издания: ")
+                fmt.Scanln(&amp;b.year)
+                fmt.Print("Количество страниц: ")
+                fmt.Scanln(&amp;b.size)
+                fmt.Print("Рейтинг: ")
+                fmt.Scanln(&amp;b.rate)
+                fmt.Print("Название: ")
+                fmt.Scanln(&amp;b.title)
+                fmt.Print("Автор: ")
+                fmt.Scanln(&amp;b.author)
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func CompareBooks(bookOne, bookTwo Book, bookValue uint8) error <span class="cov8" title="1">{
+        if bookOne.PopulateBook() == nil &amp;&amp; bookTwo.PopulateBook() == nil </span><span class="cov8" title="1">{
+                fmt.Printf("\nВывод книг для проверки:\nbookOne: %+v\nbookTwo: %+v\n", bookOne, bookTwo)
+        }</span>
+        <span class="cov8" title="1">publishingDetails := []CompareType{ID, Year, Size, Rate}
+
+        fmt.Println("\nПо какому полю выполнить сравнение, доступные варианты: ")
+        for bookIndex, bookType := range publishingDetails </span><span class="cov8" title="1">{
+                fmt.Print("[", bookIndex, "] - ", bookType.String(), "\n")
+        }</span>
+        <span class="cov8" title="1">fmt.Fscanln(os.Stdin, &amp;bookValue)
+        fmt.Println("Вы выбрали:", publishingDetails[bookValue])
+
+        comparator := selectBookType(publishingDetails[bookValue])
+        resultOfCompare := comparator.Compare
+        fmt.Printf("Сравнивая \"%s\", "+
+                "у книги \"%s\" больше, чем у \"%s\": \n",
+                comparator.Type.String(), bookOne.title, bookTwo.title)
+        fmt.Println("===================")
+        fmt.Println("Результат: ", resultOfCompare(bookOne, bookTwo))
+        fmt.Println("===================")
+        return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package fixapp
+
+import (
+        "fmt"
+
+        "github.com/aasdhajkshd/home_work_basic/hw02_fix_app/reader"
+        "github.com/aasdhajkshd/home_work_basic/hw02_fix_app/types"
+)
+
+func PrintStaff(staff []types.Employee) <span class="cov8" title="1">{
+        for i := 0; i &lt; len(staff); i++ </span><span class="cov8" title="1">{
+                fmt.Println(staff[i])
+        }</span>
+}
+
+func FixApp() error <span class="cov8" title="1">{
+        var path string
+
+        fmt.Printf("Enter data file path: ")
+        fmt.Scanln(&amp;path)
+
+        var err error
+        var staff []types.Employee
+
+        if len(path) == 0 </span><span class="cov8" title="1">{
+                path = "../../hw02_fix_app/data.json"
+        }</span> else<span class="cov0" title="0"> {
+                fmt.Println("Successfully read data.json")
+        }</span>
+
+        <span class="cov8" title="1">staff, err = reader.ReadJSON(path)
+
+        if err == nil </span><span class="cov8" title="1">{
+                PrintStaff(staff)
+        }</span> else<span class="cov0" title="0"> {
+                return err
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package shapes
+
+import (
+        "errors"
+        "fmt"
+        "math"
+)
+
+type Shape interface {
+        Area() float64
+}
+
+type Circle struct {
+        Radius float64
+}
+
+func (c Circle) Area() float64 <span class="cov8" title="1">{
+        return math.Pi * math.Pow(c.Radius, 2)
+}</span>
+
+type Rectangle struct {
+        Height, Width float64
+}
+
+func (r Rectangle) Area() float64 <span class="cov8" title="1">{
+        return r.Height * r.Width
+}</span>
+
+type Triangle struct {
+        SideA, SideB, SideC float64
+}
+
+func (t Triangle) Area() float64 <span class="cov8" title="1">{
+        p := (t.SideA + t.SideB + t.SideC) / 2
+        return math.Sqrt(p * (p - t.SideA) * (p - t.SideB) * (p - t.SideC))
+}</span>
+
+func ValidateTriangle(a, b, c float64) bool <span class="cov8" title="1">{
+        return a &lt;= (b+c) &amp;&amp; b &lt;= (a+c) &amp;&amp; c &lt;= (a+b)
+}</span>
+
+func calculateArea(s any) (float64, error) <span class="cov8" title="1">{
+        if shape, ok := s.(Shape); ok </span><span class="cov8" title="1">{
+                return shape.Area(), nil
+        }</span>
+        <span class="cov0" title="0">return 0.0, errors.New("переданный объект не реализует интерфейс Shape")</span>
+}
+
+func roundToDecimal(n float64, r int) float64 <span class="cov8" title="1">{
+        return math.Round(n*math.Pow10(r)) / math.Pow10(r)
+}</span>
+
+func CalculateAreaCircle(radius float64) (float64, error) <span class="cov8" title="1">{
+        circle := Circle{Radius: radius}
+        if circleArea, err := calculateArea(circle); err == nil </span><span class="cov8" title="1">{
+                fmt.Printf("Круг: радиус %.2f\nПлощадь: %.2f\n", radius, circleArea)
+                fmt.Println()
+                return roundToDecimal(circleArea, 2), nil
+        }</span> else<span class="cov0" title="0"> {
+                return 0.0, err
+        }</span>
+}
+
+func CalculateAreaRectangle(width, height float64) (float64, error) <span class="cov8" title="1">{
+        rectangle := Rectangle{Width: width, Height: height}
+        if rectangleArea, err := calculateArea(rectangle); err == nil </span><span class="cov8" title="1">{
+                fmt.Printf("Прямоугольник: ширина %.2f, высота %.2f\nПлощадь: %.2f\n", width, height, rectangleArea)
+                fmt.Println()
+                return roundToDecimal(rectangleArea, 2), nil
+        }</span> else<span class="cov0" title="0"> {
+                return 0.0, err
+        }</span>
+}
+
+func CalculateAreaTriangle(a, b, c float64) (float64, error) <span class="cov8" title="1">{
+        triangle := Triangle{SideA: a, SideB: b, SideC: c}
+        if ValidateTriangle(a, b, c) </span><span class="cov8" title="1">{
+                var s string
+                if a == b &amp;&amp; b == c </span><span class="cov0" title="0">{
+                        s = "равносторонний"
+                }</span>
+                <span class="cov8" title="1">if a == b || b == c || a == c </span><span class="cov8" title="1">{
+                        s = "равнобедренный"
+                }</span>
+                <span class="cov8" title="1">if triangleArea, err := calculateArea(triangle); err == nil </span><span class="cov8" title="1">{
+                        fmt.Printf("Треугольник: длины сторон %.2f, %.2f, %.2f, %v \n", a, b, c, s)
+                        fmt.Printf("Площадь: %.2f\n", triangleArea)
+                        fmt.Println()
+                        return roundToDecimal(triangleArea, 2), nil
+                }</span> else<span class="cov0" title="0"> {
+                        return 0.0, err
+                }</span>
+        } else<span class="cov8" title="1"> {
+                fmt.Printf("Треугольник: длины сторон %.2f, %.2f, %.2f \n\n"+
+                        "Для того чтобы треугольник существовал, сумма длин любых \n"+
+                        "двух его сторон должна быть больше длины третьей стороны.\n"+
+                        "Если это условие не выполняется, то треугольник невозможен.\n", a, b, c)
+                return 0.0, fmt.Errorf("ошибка в передаваемых значениях")
+        }</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
