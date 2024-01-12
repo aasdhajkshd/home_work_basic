@@ -1,6 +1,8 @@
 package chessboard
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"os"
@@ -17,22 +19,30 @@ func YesNo(question string) bool {
 	return strings.ToLower(strings.TrimSpace(question)) == "y"
 }
 
-func DrawChessBoard(x, y int) error {
+func DrawChessBoard(x, y int) string {
+	var board string
 	if x < 2 || y < 2 || x > 12 || y > 12 {
-		return fmt.Errorf("incompatiple board values: %d x %d", x, y)
+		msg := fmt.Sprintf("incompatiple board values: %d x %d", x, y)
+		return msg
 	}
 	for i := 0; i < y; i++ {
 		for j := 0; j < x; j++ {
-			fmt.Printf("%s", "|")
+			board = board + "|"
 			if j%2 == i%2 {
-				fmt.Printf("%s", "#")
+				board = board + "#"
 			} else {
-				fmt.Printf(" ")
+				board = board + " "
 			}
 		}
-		fmt.Println("|")
+		board = board + "|\n"
 	}
-	return nil
+	hasher := md5.New()
+	hasher.Write([]byte(board))
+	hash := hex.EncodeToString(hasher.Sum(nil))
+
+	// fmt.Printf("Наша доска:\n%v", board)
+	// fmt.Println("MD5 Hash:", hash)
+	return hash
 }
 
 func SizeOfBoard() int {
@@ -56,7 +66,5 @@ func ChessBoard() {
 	// fmt.Print("Введите количество столбцов: ")
 	y := x
 	fmt.Println("Ниже вывод доски размером", x, "x", y)
-	if err := DrawChessBoard(x, y); err != nil {
-		fmt.Println(err)
-	}
+	fmt.Println(DrawChessBoard(x, y))
 }

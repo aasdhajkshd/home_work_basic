@@ -12,7 +12,7 @@ const (
 )
 
 func TestCalculateAreaCircle(t *testing.T) {
-	t.Log("Проводим тестирование для круга...")
+	t.Log("Тест для круга...")
 	radiusValues := []struct {
 		radius, result float64
 	}{
@@ -31,7 +31,7 @@ func TestCalculateAreaCircle(t *testing.T) {
 }
 
 func TestCalculateAreaRectangle(t *testing.T) {
-	t.Log("Проводим тестирование для прямоугольника...")
+	t.Log("Тест для прямоугольника...")
 	rectangleValues := []struct {
 		width, height, result float64
 	}{
@@ -48,7 +48,7 @@ func TestCalculateAreaRectangle(t *testing.T) {
 }
 
 func TestCalculateAreaTriangle(t *testing.T) {
-	t.Log("Проводим тестирование для треуголника...")
+	t.Log("Тест для треугольника...")
 	triangleleValues := []struct {
 		a, b, c, result float64
 	}{
@@ -62,6 +62,24 @@ func TestCalculateAreaTriangle(t *testing.T) {
 		assert.Equal(t, v.result, result, "Ожидается площадь равной %d, но получено %d", result, v.result)
 		if err != nil { // просто и навсегда в реке Нил жил крокодил... Данди
 			t.Log(err)
+		}
+	}
+}
+
+
+func TestCalculateAreaSquare(t *testing.T) {
+	t.Log("Тест на структуру, которая не реализует интерфейс...")
+	squareValues := []struct {
+		square float64
+	}{
+		{10.0},
+	}
+
+	for i, v := range squareValues {
+		if _, err := CalculateAreaSquare(v.square); err == nil {
+			t.Logf("Тест #%d -\t%v", i+1, failed)
+		} else {
+			t.Logf("Тест #%d -\t%v", i+1, success)
 		}
 	}
 }

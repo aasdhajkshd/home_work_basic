@@ -1,17 +1,55 @@
 package fixapp
 
 import (
+	"encoding/json"
 	"fmt"
-
-	"github.com/aasdhajkshd/home_work_basic/hw02_fix_app/reader"
-	"github.com/aasdhajkshd/home_work_basic/hw02_fix_app/types"
+	"io"
+	"os"
 )
 
-func PrintStaff(staff []types.Employee) {
+type Employee struct {
+	UserID       int    `json:"userId"`
+	Age          int    `json:"age"`
+	Name         string `json:"name"`
+	DepartmentID int    `json:"departmentId"`
+}
+
+func (e Employee) String() string {
+	return fmt.Sprintf("User ID: %d; Age: %d; Name: %s; Department ID: %d; ", +
+	                    e.UserID, e.Age, e.Name, e.DepartmentID)
+}
+
+func PrintStaff(staff []Employee) {
 	for i := 0; i < len(staff); i++ {
 		fmt.Println(staff[i])
 	}
 }
+
+func ReadJSON(filePath string) ([]Employee, error) {
+	f, err := os.Open(filePath)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return nil, err
+	}
+
+	bytes, err := io.ReadAll(f)
+	if err != nil {
+		fmt.Println("Error reading JSON content:", err)
+		return nil, err
+	}
+
+	var data []Employee
+
+	err = json.Unmarshal(bytes, &data)
+	if err != nil {
+		fmt.Println("Error parsing JSON:", err)
+		return nil, err
+	}
+
+	res := data
+	return res, nil
+}
+
 
 func FixApp() error {
 	var path string
@@ -20,7 +58,7 @@ func FixApp() error {
 	fmt.Scanln(&path)
 
 	var err error
-	var staff []types.Employee
+	var staff []Employee
 
 	if len(path) == 0 {
 		path = "../../hw02_fix_app/data.json"
@@ -28,7 +66,7 @@ func FixApp() error {
 		fmt.Println("Successfully read data.json")
 	}
 
-	staff, err = reader.ReadJSON(path)
+	staff, err = ReadJSON(path)
 
 	if err == nil {
 		PrintStaff(staff)

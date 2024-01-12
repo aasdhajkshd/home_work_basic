@@ -2,7 +2,6 @@ package shapes
 
 import (
 	"errors"
-	"fmt"
 	"math"
 )
 
@@ -39,6 +38,14 @@ func ValidateTriangle(a, b, c float64) bool {
 	return a <= (b+c) && b <= (a+c) && c <= (a+b)
 }
 
+type Square struct {
+	Side float64
+}
+
+func (s Square) CalculateSquareArea() float64 {
+	return math.Pow(s.Side, 2)
+}
+
 func calculateArea(s any) (float64, error) {
 	if shape, ok := s.(Shape); ok {
 		return shape.Area(), nil
@@ -53,8 +60,6 @@ func roundToDecimal(n float64, r int) float64 {
 func CalculateAreaCircle(radius float64) (float64, error) {
 	circle := Circle{Radius: radius}
 	if circleArea, err := calculateArea(circle); err == nil {
-		fmt.Printf("Круг: радиус %.2f\nПлощадь: %.2f\n", radius, circleArea)
-		fmt.Println()
 		return roundToDecimal(circleArea, 2), nil
 	} else {
 		return 0.0, err
@@ -64,8 +69,6 @@ func CalculateAreaCircle(radius float64) (float64, error) {
 func CalculateAreaRectangle(width, height float64) (float64, error) {
 	rectangle := Rectangle{Width: width, Height: height}
 	if rectangleArea, err := calculateArea(rectangle); err == nil {
-		fmt.Printf("Прямоугольник: ширина %.2f, высота %.2f\nПлощадь: %.2f\n", width, height, rectangleArea)
-		fmt.Println()
 		return roundToDecimal(rectangleArea, 2), nil
 	} else {
 		return 0.0, err
@@ -75,26 +78,21 @@ func CalculateAreaRectangle(width, height float64) (float64, error) {
 func CalculateAreaTriangle(a, b, c float64) (float64, error) {
 	triangle := Triangle{SideA: a, SideB: b, SideC: c}
 	if ValidateTriangle(a, b, c) {
-		var s string
-		if a == b && b == c {
-			s = "равносторонний"
-		}
-		if a == b || b == c || a == c {
-			s = "равнобедренный"
-		}
 		if triangleArea, err := calculateArea(triangle); err == nil {
-			fmt.Printf("Треугольник: длины сторон %.2f, %.2f, %.2f, %v \n", a, b, c, s)
-			fmt.Printf("Площадь: %.2f\n", triangleArea)
-			fmt.Println()
 			return roundToDecimal(triangleArea, 2), nil
 		} else {
 			return 0.0, err
 		}
 	} else {
-		fmt.Printf("Треугольник: длины сторон %.2f, %.2f, %.2f \n\n"+
-			"Для того чтобы треугольник существовал, сумма длин любых \n"+
-			"двух его сторон должна быть больше длины третьей стороны.\n"+
-			"Если это условие не выполняется, то треугольник невозможен.\n", a, b, c)
-		return 0.0, fmt.Errorf("ошибка в передаваемых значениях")
+		return 0.0, errors.New("ошибка в передаваемых значениях")
+	}
+}
+
+func CalculateAreaSquare(side float64) (float64, error) {
+	square := &Square{side}
+	if squareArea, err := calculateArea(square); err != nil {
+		return 0.0, err
+	} else {
+		return roundToDecimal(squareArea, 2), nil
 	}
 }
