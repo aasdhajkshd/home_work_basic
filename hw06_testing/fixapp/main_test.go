@@ -4,8 +4,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/aasdhajkshd/home_work_basic/hw02_fix_app/reader"
-	"github.com/aasdhajkshd/home_work_basic/hw02_fix_app/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,14 +22,14 @@ func TestReadJSON(t *testing.T) {
 	defer os.Remove(tmpFile.Name()) // какая прелесть
 
 	// Тестируем функцию ReadJSON по пути "github.com"
-	employee, err := reader.ReadJSON(tmpFile.Name())
+	employee, err := ReadJSON(tmpFile.Name())
 	assert.NoError(t, err, "На случай ошибки в JSON")
 	assert.NotNil(t, employee, "Employees не должны быть nil")
 	assert.Len(t, employee, 1, "Шикарная штука testify...")
 	// как и поиск в Slice, чем перебирать...
 
 	// Проверяем, что значения структуры совпадают с ожидаемыми
-	expectedEmployee := types.Employee{UserID: 3, Age: 44, Name: "Васиья", DepartmentID: 7}
+	expectedEmployee := Employee{UserID: 3, Age: 44, Name: "Васиья", DepartmentID: 7}
 	assert.Equal(t, expectedEmployee, employee[0], "Жаль, мы так старались...")
 }
 
