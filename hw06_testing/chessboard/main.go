@@ -19,30 +19,32 @@ func YesNo(question string) bool {
 	return strings.ToLower(strings.TrimSpace(question)) == "y"
 }
 
-func DrawChessBoard(x, y int) string {
-	var board string
-	if x < 2 || y < 2 || x > 12 || y > 12 {
-		msg := fmt.Sprintf("incompatiple board values: %d x %d", x, y)
-		return msg
-	}
-	for i := 0; i < y; i++ {
-		for j := 0; j < x; j++ {
-			board = board + "|"
-			if j%2 == i%2 {
-				board = board + "#"
-			} else {
-				board = board + " "
-			}
-		}
-		board = board + "|\n"
-	}
-	hasher := md5.New()
-	hasher.Write([]byte(board))
-	hash := hex.EncodeToString(hasher.Sum(nil))
+func HashChessBoard(s string) string {
 
-	// fmt.Printf("Наша доска:\n%v", board)
-	// fmt.Println("MD5 Hash:", hash)
+	hasher := md5.New()
+	hasher.Write([]byte(s))
+	hash := hex.EncodeToString(hasher.Sum(nil))
 	return hash
+}
+ 
+func DrawChessBoard(x, y int) string {
+	var board strings.Builder
+	if x < 2 || y < 2 || x > 12 || y > 12 {
+		board.WriteString("разумные размеры нужны, от 2 до 12")
+	} else {
+		for i := 0; i < y; i++ {
+			for j := 0; j < x; j++ {
+				board.WriteString("|")
+				if j%2 == i%2 {
+					board.WriteString("#")
+				} else {
+					board.WriteString(" ")
+				}
+			}
+			board.WriteString("|\n")
+		}
+	}
+	return board.String()
 }
 
 func SizeOfBoard() int {

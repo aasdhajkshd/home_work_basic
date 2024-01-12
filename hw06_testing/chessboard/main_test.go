@@ -1,15 +1,18 @@
 package chessboard
 
 import (
+	"fmt"
 	"testing"
 )
 
 func TestDrawChessBoard(t *testing.T) {
 	cases := []struct {
 		axisX, axisY int    // axis: x, y
-		sum          string // checkSum in MD5
+		expectedResult string
+		testDescription  string
 	}{
-		{8, 8, "d55b99581da7a69e9de8bdeea7f4c6bc"},
+		{8, 8, "|#| |#| |#| |#| |\n| |#| |#| |#| |#|\n|#| |#| |#| |#| |\n| |#| |#| |#| |#|\n|#| |#| |#| |#| |\n| |#| |#| |#| |#|\n|#| |#| |#| |#| |\n| |#| |#| |#| |#|\n", "доска 8x8"},
+		{5, 5, "|#| |#| |#| |#| |\n| |#| |#| |#| |#|\n|#| |#| |#| |#| |\n| |#| |#| |#| |#|\n|#| |#| |#| |#| |\n", "доска 5x5"}, // это пример от обратного тестирования 5x8
 	}
 
 	const (
@@ -19,11 +22,15 @@ func TestDrawChessBoard(t *testing.T) {
 
 	t.Log("Тест для шахматной доски...")
 	for n, c := range cases {
-		checkSum := DrawChessBoard(c.axisX, c.axisY)
-		if c.sum == checkSum {
-			t.Logf("Тест #%d - \t%v", n+1, success)
-		} else {
-			t.Errorf("Тест #%d - \t%v", n+1, failed)
-		}
+		t.Run(c.testDescription, func(t *testing.T) {
+			result := DrawChessBoard(c.axisX, c.axisY)
+			fmt.Println(result)
+			fmt.Println(c.expectedResult)
+			if c.expectedResult == result {
+				t.Logf("Тест #%d - \t%v", n+1, success)
+			} else {
+				t.Errorf("Тест #%d - \t%v", n+1, failed)
+			}
+		})
 	}
 }
