@@ -7,11 +7,12 @@ import (
 
 func TestDrawChessBoard(t *testing.T) {
 	cases := []struct {
-		axisX, axisY int    // axis: x, y
-		expectedResult string
-		testDescription  string
+		axisX, axisY    int // axis: x, y
+		expectedResult  string
+		testDescription string
 	}{
-		{8, 8, "|#| |#| |#| |#| |\n| |#| |#| |#| |#|\n|#| |#| |#| |#| |\n| |#| |#| |#| |#|\n|#| |#| |#| |#| |\n| |#| |#| |#| |#|\n|#| |#| |#| |#| |\n| |#| |#| |#| |#|\n", "доска 8x8"},
+		{8, 8, "|#| |#| |#| |#| |\n| |#| |#| |#| |#|\n|#| |#| |#| |#| |\n| |#| |#| |#| |#|\n" +
+			"|#| |#| |#| |#| |\n| |#| |#| |#| |#|\n|#| |#| |#| |#| |\n| |#| |#| |#| |#|\n", "доска 8x8"},
 		{5, 5, "|#| |#| |#|\n| |#| |#| |\n|#| |#| |#|\n| |#| |#| |\n|#| |#| |#|\n", "доска 5x5"},
 	}
 
