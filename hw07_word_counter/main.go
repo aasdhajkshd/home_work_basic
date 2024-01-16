@@ -2,20 +2,24 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"os"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 )
+
+func removePunct(s string) string {
+	return strings.TrimFunc(s, unicode.IsPunct)
+}
 
 func countWords(x string) (map[string]int, error) { // по условаию задания принимаем строку
 	wordsMap := make(map[string]int)
 	s := bufio.NewScanner(strings.NewReader(x))
 	s.Split(bufio.ScanWords)
 	for s.Scan() {
-		w := strings.ToLower(strings.Trim(s.Text(), "!?,. "))
-		wordsMap[w]++
+		w := removePunct(s.Text())
+		wordsMap[strings.ToLower(w)]++
 	}
 	if err := s.Err(); err != nil {
 		return nil, err
@@ -38,9 +42,8 @@ func printDups(m map[string]int) {
 }
 
 func main() {
-	var inputText bytes.Buffer
+	var inputText []string
 	s := bufio.NewScanner(os.Stdin)
-	const exampleText string = "\"Раз, два, три, даю пробу... Костя, как слышно... три, два, один, прием.\""
 	fmt.Println("Введите тест для подсчёта количества одинаковых слов,")
 	fmt.Println("завершая ввод новой пустой строкой или \".\"")
 	for s.Scan() {
@@ -48,19 +51,24 @@ func main() {
 		if readLine == "" || readLine == "." {
 			break
 		}
-		inputText.WriteString(readLine + "\n")
+		inputText = append(inputText, readLine)
 	}
 	if err := s.Err(); err != nil {
 		fmt.Fprintln(os.Stderr, "ошибка чтения:", err)
 	}
-	if inputText.Len() == 0 {
+	if len(inputText) == 0 {
 		fmt.Println("Вы ввели ни слова, " +
 			"для демонстрации проводится подсчёт слов в тексте:")
-		fmt.Println(exampleText)
-		fmt.Fprint(&inputText, exampleText)
+		inputText = []string{
+			"Раз, два, три, даю пробу...",
+			"Костя, как слышно...",
+			"Три, два, один, прием.",
+		}
+
+		fmt.Println(inputText)
 	}
 
-	if arr, err := countWords(inputText.String()); err == nil {
+	if arr, err := countWords(strings.Join(inputText, "\n")); err == nil {
 		printDups(arr)
 	}
 }
