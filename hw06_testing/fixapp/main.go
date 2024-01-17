@@ -15,8 +15,7 @@ type Employee struct {
 }
 
 func (e Employee) String() string {
-	return fmt.Sprintf("User ID: %d; Age: %d; Name: %s; Department ID: %d; ", +
-	                    e.UserID, e.Age, e.Name, e.DepartmentID)
+	return fmt.Sprintf("User ID: %d; Age: %d; Name: %s; Department ID: %d; ", +e.UserID, e.Age, e.Name, e.DepartmentID)
 }
 
 func PrintStaff(staff []Employee) {
@@ -49,7 +48,6 @@ func ReadJSON(filePath string) ([]Employee, error) {
 	res := data
 	return res, nil
 }
-
 
 func FixApp() error {
 	var path string

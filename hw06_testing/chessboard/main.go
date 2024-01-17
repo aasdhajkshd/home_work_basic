@@ -1,8 +1,6 @@
 package chessboard
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"fmt"
 	"log"
 	"os"
@@ -19,14 +17,6 @@ func YesNo(question string) bool {
 	return strings.ToLower(strings.TrimSpace(question)) == "y"
 }
 
-func HashChessBoard(s string) string {
-
-	hasher := md5.New()
-	hasher.Write([]byte(s))
-	hash := hex.EncodeToString(hasher.Sum(nil))
-	return hash
-}
- 
 func DrawChessBoard(x, y int) string {
 	var board strings.Builder
 	if x < 2 || y < 2 || x > 12 || y > 12 {

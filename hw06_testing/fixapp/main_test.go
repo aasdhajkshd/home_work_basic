@@ -11,13 +11,13 @@ func TestReadJSON(t *testing.T) {
 	tmpFile, err := os.CreateTemp("", "testData.json")
 	if err != nil {
 		t.Fatal(err)
-	} 
+	}
 	// Мы писали, мы писали, наши пальчики устали...
 	testData := `[{"userId": 3, "age": 44, "name": "Васиья", "departmentId": 7}]`
 	_, err = tmpFile.Write([]byte(testData))
 	if err != nil {
 		t.Fatal(err)
-	} 
+	}
 
 	defer os.Remove(tmpFile.Name()) // какая прелесть
 

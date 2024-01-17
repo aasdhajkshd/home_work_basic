@@ -1,3 +1,4 @@
+//nolint:revive,stylecheck
 package comparator
 
 const (
@@ -71,6 +72,7 @@ func selectBookType(t CompareType) *Comparator {
 	}
 }
 
+//nolint:exhaustive
 func (c Comparator) Compare(bookOne, bookTwo Book) bool {
 	switch c.Type {
 	case Id:

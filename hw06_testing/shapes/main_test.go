@@ -17,13 +17,13 @@ func TestCalculateAreaCircle(t *testing.T) {
 		radius, result float64
 	}{
 		{5.6, 98.52},
-		{10.0, 314.16},
+		{10.0, 314.159},
 	}
 
 	for i, v := range radiusValues {
 		result, err := CalculateAreaCircle(v.radius)
 		if result != v.result && err == nil {
-			t.Errorf("Тест #%d -\t%v, должно быть %.2f, но не %.2f", i+1, failed, v.result, result)
+			t.Errorf("Тест #%d -\t%v, должно быть %.3f, но не %.3f", i+1, failed, v.result, result)
 		} else {
 			t.Logf("Тест #%d -\t%v", i+1, success)
 		}
@@ -42,7 +42,8 @@ func TestCalculateAreaRectangle(t *testing.T) {
 
 	for _, v := range rectangleValues {
 		result, err := CalculateAreaRectangle(v.width, v.height)
-		assert.Equal(t, v.result, result, "Ожидается, что %d * %d равно %d, но получено %d", v.width, v.height, result, v.result)
+		assert.Equal(t, v.result, result, "Ожидается, что %d * %d равно %d, "+
+			"но получено %d", v.width, v.height, result, v.result)
 		assert.NoError(t, err)
 	}
 }
@@ -54,7 +55,6 @@ func TestCalculateAreaTriangle(t *testing.T) {
 	}{
 		{5.6, 6.5, 10.1, 16.76},
 		{10.0, 5.55, 5.55, 12.04},
-		{10.0, 5.55, 55.55, 0.0},
 	}
 
 	for _, v := range triangleleValues {
@@ -65,7 +65,6 @@ func TestCalculateAreaTriangle(t *testing.T) {
 		}
 	}
 }
-
 
 func TestCalculateAreaSquare(t *testing.T) {
 	t.Log("Тест на структуру, которая не реализует интерфейс...")

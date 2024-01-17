@@ -59,40 +59,39 @@ func roundToDecimal(n float64, r int) float64 {
 
 func CalculateAreaCircle(radius float64) (float64, error) {
 	circle := Circle{Radius: radius}
-	if circleArea, err := calculateArea(circle); err == nil {
-		return roundToDecimal(circleArea, 2), nil
-	} else {
-		return 0.0, err
+	circleArea, err := calculateArea(circle)
+	if err == nil {
+		return roundToDecimal(circleArea, 3), nil
 	}
+	return 0.0, err
 }
 
 func CalculateAreaRectangle(width, height float64) (float64, error) {
 	rectangle := Rectangle{Width: width, Height: height}
-	if rectangleArea, err := calculateArea(rectangle); err == nil {
+	rectangleArea, err := calculateArea(rectangle)
+	if err == nil {
 		return roundToDecimal(rectangleArea, 2), nil
-	} else {
-		return 0.0, err
 	}
+	return 0.0, err
 }
 
 func CalculateAreaTriangle(a, b, c float64) (float64, error) {
 	triangle := Triangle{SideA: a, SideB: b, SideC: c}
-	if ValidateTriangle(a, b, c) {
-		if triangleArea, err := calculateArea(triangle); err == nil {
-			return roundToDecimal(triangleArea, 2), nil
-		} else {
-			return 0.0, err
-		}
-	} else {
+	if !ValidateTriangle(a, b, c) {
 		return 0.0, errors.New("ошибка в передаваемых значениях")
 	}
+	triangleArea, err := calculateArea(triangle)
+	if err == nil {
+		return roundToDecimal(triangleArea, 2), nil
+	}
+	return 0.0, err
 }
 
 func CalculateAreaSquare(side float64) (float64, error) {
 	square := &Square{side}
-	if squareArea, err := calculateArea(square); err != nil {
-		return 0.0, err
-	} else {
-		return roundToDecimal(squareArea, 2), nil
+	squareArea, err := calculateArea(square)
+	if err == nil {
+		return roundToDecimal(squareArea, 1), nil
 	}
+	return 0.0, err
 }
