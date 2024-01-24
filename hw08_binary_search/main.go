@@ -55,7 +55,7 @@ func (b *BinaryStruct) binarySearch(inputSlice []int, searchValue int) int {
 		} else {
 			b.highValue = j - 1
 		}
-		fmt.Println("Индекс:", j, "слева:", b.lowValue, "справа:", b.highValue, "значение:", inputSlice[j], "искомое:", searchValue)
+		fmt.Println("Индекс:", j, "слева:", b.lowValue, "справа:", b.highValue, "значение:", inputSlice[j], "искомое:", searchValue) //nolint:lll
 	}
 	return -1
 }
@@ -68,10 +68,8 @@ func main() {
 	bs := BinaryStruct{}
 	var inputSlice []int
 	var searchValue int
-
 	// fmt.Println(bs.binarySearch([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 5))
 	// os.Exit(0)
-
 	if v, err := r.Random(); err != nil {
 		inputSlice = []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
 		searchValue = 11
