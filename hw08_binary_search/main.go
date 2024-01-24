@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"slices"
+	_ "slices"
+	"sort"
 )
 
 type Range struct {
@@ -26,6 +27,16 @@ func (r *Range) Random() ([]int, error) {
 	}
 	// fmt.Printf("Random r.nums: %+v\n", r.nums)
 	return r.nums, nil
+}
+
+// пакет slices появился Go 1.21
+func contains(s []int, v int) bool {
+	for _, j := range s {
+		if j == v {
+			return true
+		}
+	}
+	return false
 }
 
 // на вход принимает слайс чисел и число для поиска.
@@ -68,13 +79,13 @@ func main() {
 		searchValue = 11
 	} else {
 		inputSlice = v
-		slices.Sort(inputSlice)
+		sort.Ints(inputSlice) // slices.Sort(inputSlice)
 	}
 	fmt.Println("Поисковая комбинация:", inputSlice)
 	// fmt.Println("Main:", r)
 	fmt.Printf("Укажите цифру для поиска в диапазоне от %d до %d\n> ", r.min, r.max)
 	fmt.Scanln(&searchValue)
-	if searchValue >= r.min && searchValue <= r.max && slices.Contains(inputSlice, searchValue) {
+	if searchValue >= r.min && searchValue <= r.max && contains(inputSlice, searchValue) { // slices.Contains(inputSlice, searchValue)
 		indexSlice := binarySearch(inputSlice, searchValue)
 		if indexSlice > 0 {
 			fmt.Printf("Индекс: %d, значение: %d\n", indexSlice, inputSlice[indexSlice])
