@@ -14,7 +14,7 @@ type Range struct {
 //nolint:gosec
 func (r *Range) Random() ([]int, error) {
 	if r.max <= 0 || r.max-1 == r.min {
-		return nil, fmt.Errorf("здесь 100%% результат") // плохой диапазон будет, просто отдадим ошибку
+		return nil, fmt.Errorf("здесь 100%% результат")
 	}
 	nums := make(map[int]struct{}, r.num)
 	for i := 0; i < r.num; i++ {
@@ -58,7 +58,6 @@ func binarySearch(inputSlice []int, searchValue int) int {
 		} else {
 			highValue = j - 1
 		}
-		// fmt.Println("Индекс:", j, "слева:", lowValue, "справа:", highValue, "значение:", inputSlice[j], "искомое:", searchValue) //nolint:lll
 	}
 	return -1
 }
@@ -70,21 +69,18 @@ func main() {
 	r.num = 40
 	var inputSlice []int
 	var searchValue int
-	// fmt.Println(bs.binarySearch([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 5))
-	// os.Exit(0)
-
 	if v, err := r.Random(); err != nil {
 		inputSlice = []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
 		searchValue = 11
 	} else {
 		inputSlice = v
-		sort.Ints(inputSlice) // slices.Sort(inputSlice)
+		sort.Ints(inputSlice)
 	}
 	fmt.Println("Поисковая комбинация:", inputSlice)
 	// fmt.Println("Main:", r)
 	fmt.Printf("Укажите цифру для поиска в диапазоне от %d до %d\n> ", r.min, r.max)
 	fmt.Scanln(&searchValue)
-	if searchValue >= r.min && searchValue <= r.max && contains(inputSlice, searchValue) { // slices.Contains(inputSlice, searchValue)
+	if searchValue >= r.min && searchValue <= r.max && contains(inputSlice, searchValue) {
 		indexSlice := binarySearch(inputSlice, searchValue)
 		if indexSlice > 0 {
 			fmt.Printf("Индекс: %d, значение: %d\n", indexSlice, inputSlice[indexSlice])
