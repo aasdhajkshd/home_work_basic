@@ -43,7 +43,6 @@ func (b *BinaryStruct) binarySearch(inputSlice []int, searchValue int) int {
 	}
 	b.lowValue, b.highValue = 0, lenSlice
 	for b.lowValue <= b.highValue { // цикл-условие аналог "while"
-		// fmt.Println("начало цикла:", j, b.lowValue, b.highValue, inputSlice[j], searchValue)
 		j := (b.lowValue + b.highValue) / 2
 		if j == lenSlice { // запрашиваемое значение вне допустимого диапазона
 			break
@@ -56,7 +55,7 @@ func (b *BinaryStruct) binarySearch(inputSlice []int, searchValue int) int {
 		} else {
 			b.highValue = j - 1
 		}
-		// fmt.Println("завершение цикла:", j, b.lowValue, b.highValue, inputSlice[j], searchValue)
+		fmt.Println("Индекс:", j, "слева:", b.lowValue, "справа:", b.highValue, "значение:", inputSlice[j], "искомое:", searchValue)
 	}
 	return -1
 }
