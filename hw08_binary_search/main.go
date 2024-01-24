@@ -28,7 +28,7 @@ func (r *Range) Random() ([]int, error) {
 	return r.nums, nil
 }
 
-// пакет slices появился Go 1.21
+// пакет slices появился Go 1.21.
 func contains(s []int, v int) bool {
 	for _, j := range s {
 		if j == v {
