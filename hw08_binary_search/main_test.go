@@ -7,7 +7,6 @@ import (
 )
 
 func TestBinarySearch(t *testing.T) {
-	bs := BinaryStruct{}
 	cases := []struct {
 		testSlice      []int
 		testValue      int
@@ -79,7 +78,7 @@ func TestBinarySearch(t *testing.T) {
 		},
 	}
 	for i, j := range cases {
-		result := bs.binarySearch(j.testSlice, j.testValue)
+		result := binarySearch(j.testSlice, j.testValue)
 		assert.Equal(t, j.expectedResult, result, "Тест %d: %s", i+1, j.message)
 	}
 }
