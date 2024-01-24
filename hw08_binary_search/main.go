@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	_ "os"
+	"os"
 	"slices"
 )
 
@@ -46,11 +46,11 @@ func (b *BinaryStruct) binarySearch(inputSlice []int, searchValue int) int {
 	for b.lowValue <= b.highValue { // цикл-условие аналог "while"
 		// fmt.Println("начало цикла:", j, b.lowValue, b.highValue, inputSlice[j], searchValue)
 		j := (b.lowValue + b.highValue) / 2
-		if j >= b.highValue { // запрашиваемое значение вне допустимого диапазона
-			break
-		}
-		if inputSlice[j] == searchValue {
+		if inputSlice[j] == searchValue { // нужно выше, если прямое попадание посередине
 			return j
+		}
+		if j == b.highValue { // запрашиваемое значение вне допустимого диапазона
+			break
 		}
 		if searchValue > inputSlice[j] {
 			b.lowValue = j + 1
@@ -71,8 +71,8 @@ func main() {
 	var inputSlice []int
 	var searchValue int
 
-	// fmt.Println(bs.binarySearch([]int{4, 89, 94, 97, 98}, 99)) 
-	// os.Exit(0)
+	fmt.Println(bs.binarySearch([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 5))
+	os.Exit(0)
 
 	if v, err := r.Random(); err != nil {
 		inputSlice = []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
