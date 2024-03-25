@@ -22,6 +22,23 @@ type Book struct {
 	Updated time.Time `json:"updated,omitempty"`
 }
 
+type Message interface {
+	MarshalProto() ([]byte, error)
+}
+
+func (b *Book) MarshalProto() ([]byte, error) {
+	bookProto := &book.Message{
+		Id:      b.Id,
+		Year:    b.Year,
+		Size:    b.Size,
+		Rate:    b.Rate,
+		Title:   b.Title,
+		Author:  b.Author,
+		Updated: timestamppb.New(b.Updated),
+	}
+	return proto.Marshal(bookProto)
+}
+
 type Marshaler interface {
 	MarshalJSON() ([]byte, error)
 }
@@ -83,19 +100,19 @@ func main() {
 	}
 
 	// Protobuf
-	bookProto := book.Message{
+	bookProto := &Book{
 		Id:      1484296656,
 		Year:    2023,
 		Size:    384,
 		Rate:    2.0,
 		Title:   "Go Crazy",
 		Author:  "Nicolas Modrzyk",
-		Updated: timestamppb.Now(),
+		Updated: time.Now(),
 	}
 
 	fmt.Println()
 	fmt.Println("*** Marshaling with proto package ***")
-	res, err := proto.Marshal(&bookProto)
+	res, err := bookProto.MarshalProto()
 	if err != nil {
 		fmt.Printf("ProtoBuf marshalling error: %v\n", err)
 		log.Fatalln()
