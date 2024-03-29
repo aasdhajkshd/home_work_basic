@@ -1,8 +1,10 @@
 package main
 
 import (
+	_ "bytes"
 	"encoding/json"
 	"fmt"
+	_ "io"
 	"log"
 	"os"
 	"time"
@@ -23,11 +25,11 @@ type Book struct {
 }
 
 type Message interface {
-	MarshalProto() ([]byte, error)
+	bookToMessage() *book.Message
 }
 
-func (b *Book) MarshalProto() ([]byte, error) {
-	bookProto := &book.Message{
+func (b Book) bookToMessage() *book.Message {
+	return &book.Message{
 		Id:      b.Id,
 		Year:    b.Year,
 		Size:    b.Size,
@@ -36,22 +38,6 @@ func (b *Book) MarshalProto() ([]byte, error) {
 		Author:  b.Author,
 		Updated: timestamppb.New(b.Updated),
 	}
-	return proto.Marshal(bookProto)
-}
-
-func (b *Book) UnmarshalProto(data []byte) error {
-	bookProto := &book.Message{}
-	if err := proto.Unmarshal(data, bookProto); err != nil {
-		return err
-	}
-	b.Id = bookProto.GetId()
-	b.Year = bookProto.GetYear()
-	b.Size = bookProto.GetSize()
-	b.Rate = bookProto.GetRate()
-	b.Title = bookProto.GetTitle()
-	b.Author = bookProto.GetAuthor()
-	b.Updated = bookProto.GetUpdated().AsTime()
-	return nil
 }
 
 type Marshaler interface {
@@ -63,23 +49,23 @@ type Unmarshaler interface {
 }
 
 func (b *Book) MarshalJSON() ([]byte, error) {
-	type bookList Book
+	type bookAlias Book
 	return json.Marshal(&struct {
 		Updated int64 `json:"updated"`
-		*bookList
+		*bookAlias
 	}{
 		Updated:  b.Updated.Unix(),
-		bookList: (*bookList)(b),
+		bookAlias: (*bookAlias)(b),
 	})
 }
 
 func (b *Book) UnmarshalJSON(data []byte) error {
-	type bookList Book
+	type bookAlias Book
 	aux := &struct {
 		Updated int64 `json:"updated"`
-		*bookList
+		*bookAlias
 	}{
-		bookList: (*bookList)(b),
+		bookAlias: (*bookAlias)(b),
 	}
 	if err := json.Unmarshal(data, &aux); err != nil {
 		return err
@@ -98,36 +84,25 @@ func DeserializeBooksJSON(data []byte) ([]Book, error) {
 	return books, err
 }
 
-func SerializeBooksProto(books []Book) ([]byte, error) {
-	var data []byte
-	for _, j := range books {
-		protobuffedBook, err := j.MarshalProto()
-		if err != nil {
-			return nil, err
-		}
-		data = append(data, protobuffedBook...)
+func bookToFile(filename string, data []byte) error {
+	if err := os.WriteFile(filename, data, 0644); err != nil { //nolint:gofumpt,gosec
+		log.Fatalln("Failed to write data to book:", err)
+		return err
 	}
-	return data, nil
+	return nil
 }
 
-/*
-func DeserializeBooksProto(data []byte) ([]*book.Message, error) {
-	var books []*book.Message
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	for {
-		var bookProto book.Message
-		if err := decoder.Decode(&bookProto); err != nil {
-			if err == io.EOF {
-				break
-			}
-			return nil, err
-		}
-		books = append(books, &bookProto)
-	}
-	fmt.Printf("%v\n", books)
-	return books, nil
+func bookFromFile(filename string) ([]byte, error) {
+	return os.ReadFile(filename)
 }
-*/
+
+func serializeBooksProto(books []Book) ([]byte, error) {
+	var protoBooks []*book.Message
+	for _, j := range books {
+		protoBooks = append(protoBooks, j.bookToMessage())
+	}
+	return proto.Marshal(&book.List{Books: protoBooks})
+}
 
 func main() {
 	nowTime := time.Now()
@@ -136,14 +111,14 @@ func main() {
 		{1250237238, 2019, 263, 4.7, "Permanent Record", "Edward Snowden", nowTime},
 		{1718501129, 2021, 216, 4.6, "Black Hat Python 2", "Justin Seitz", nowTime},
 	}
-
+    //Marshalling with json
 	fmt.Println("*** Marshaling with json package ***")
-	data, err := json.MarshalIndent(&books, "", "  ")
+	data, err := json.Marshal(&books)
 	if err != nil {
 		fmt.Printf("JSON marshalling error: %v\n", err)
 		log.Fatalln()
 	}
-	fmt.Printf("Books in json:\n%s\n", data)
+	fmt.Printf("%s\n", data)
 
 	var bookData []Book
 	err = json.Unmarshal(data, &bookData)
@@ -155,8 +130,26 @@ func main() {
 		fmt.Printf("%v\n", bookData[i])
 	}
 
+	// Serialization with json package via functions
+	fmt.Println()
+	fmt.Println("*** Serialization with json ***")
+	serializedDataJSON, err := SerializeBooksJSON(books)
+	if err != nil {
+		log.Fatalf("Error serialization: %v\n", err)
+	}
+
+	fmt.Println()
+	deserializedData, err := DeserializeBooksJSON(serializedDataJSON)
+	if err != nil {
+		log.Fatalf("Error deserialization: %v\n", err)
+	}
+	for i := range deserializedData {
+		fmt.Printf("JSON in slice Book %d: %+v\n", i, deserializedData[i])
+	}
+
 	// Protobuf
-	bookProto := &Book{
+	
+	bookProto := Book{
 		Id:      1484296656,
 		Year:    2023,
 		Size:    384,
@@ -164,60 +157,61 @@ func main() {
 		Title:   "Go Crazy",
 		Author:  "Nicolas Modrzyk",
 		Updated: time.Now(),
-	}
+	}.bookToMessage()
 
 	fmt.Println()
-	fmt.Println("*** Marshaling with proto package ***")
-	res, err := bookProto.MarshalProto()
+	fmt.Println("*** Marshalling with protobuf ***")
+	data, err = proto.Marshal(bookProto)
 	if err != nil {
 		fmt.Printf("ProtoBuf marshalling error: %v\n", err)
 		log.Fatalln()
 	}
+	fmt.Printf("%s\n", data)
 
-	filename := "book.data"
+    // Writing to file bytes
+	filename := "books.data"
+	bookToFile(filename, data)
 
-	if err = os.WriteFile(filename, res, 0644); err != nil { //nolint:gofumpt,gosec
-		log.Fatalln("Failed to write book:", err)
-	}
-	fmt.Printf("Book in bytes %v written to file \"%s\"\n\n", len(res), filename)
-
-	res, err = os.ReadFile(filename)
+    // Reading from file
+	data, err = bookFromFile(filename)
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Fatalln("Failed to read data from file:", err)
+	} else {
+		bookMessage := &book.Message{}
+		err = proto.Unmarshal(data, bookMessage)
+
+		if err != nil {
+			fmt.Printf("error: %v\n", err)
+		}
+		fmt.Printf("Unmarshalled protobuf:\n%+v\n", bookMessage)
 	}
 
-	bookBlob := &book.Message{}
-	err = proto.Unmarshal(res, bookBlob)
-
+	// Serialization protobuf slice
+	fmt.Println()
+	fmt.Println("*** Serialization with protobuf books slice ***")
+	serializedDataProto, err := serializeBooksProto(books)
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Fatalf("Error serialization: %v\n", err)
 	}
-	fmt.Printf("Unmarshalled protobuf:\n%+v\n", bookBlob)
+	fmt.Printf("%s", serializedDataProto)
+
+	// Deserialization protobuf slice
+	fmt.Println("*** Deserialization of proto books slice ***")	
+	bookList := &book.List{}
+	if err := proto.Unmarshal(serializedDataProto, bookList); err != nil {
+		log.Fatalf("Error deserialization: %v\n", err)
+	}
+
+    // Output of deserialized protobuf books slice
+	for _, b := range bookList.Books {
+		fmt.Printf("ID: %d, Year: %d, Size: %d, Rate: %.2f, Title: %s, Author: %s, Updated: %v\n",
+			b.GetId(), b.GetYear(), b.GetSize(), b.GetRate(), b.GetTitle(), b.GetAuthor(), b.GetUpdated())
+	}
 
 	fmt.Println()
-	fmt.Println("*** Serialization with json ***")
-	serializedData, err := SerializeBooksJSON(books)
-	if err != nil {
-		fmt.Printf("error: %v'n", err)
-	} else {
-		fmt.Printf("JSON in bytes (to string): %s\n", string(serializedData))
-	}
-
-	deserializedData, err := DeserializeBooksJSON(serializedData)
-	if err != nil {
-		log.Fatalf("Error deserializing in json: %v", err)
-	}
-	for i := range deserializedData {
-		fmt.Printf("JSON in slice Book %d: %+v\n", i, deserializedData[i])
-	}
-
-	fmt.Println()
-	fmt.Println("*** Serialization with protobuf ***")
-	serializedData, err = SerializeBooksProto(books)
-	if err != nil {
-		fmt.Printf("error: %v'n", err)
-	} else {
-		fmt.Printf("Proto in bytes (to string): %s\n", string(serializedData))
-	}
-	// deserializedData, err = DeserializeBooksProto(serializedData)
+    fmt.Println("*** Results ***")
+	data, _ = json.MarshalIndent(&books, "", "  ")
+	fmt.Printf("Books:\n%s\n", data)
+	fmt.Printf("JSON books in bytes:  \"%d\"\n", len(serializedDataJSON))
+	fmt.Printf("Protobuf books in bytes: \"%d\"\n", len(serializedDataProto))
 }

@@ -10,3 +10,7 @@ message Message {
 	string author = 6;	
 	google.protobuf.Timestamp updated = 7;
 }
+
+message List {
+	repeated Message books = 1;
+}
