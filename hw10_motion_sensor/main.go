@@ -50,18 +50,16 @@ func averageSensorData(c <-chan float64) chan float64 {
 	o := make(chan float64)
 	go func() {
 		defer close(o)
-		m := []float64{}
+		i := 0
+		var m float64
 		for data := range c {
-			m = append(m, data)
-			if len(m)%10 == 0 {
-				var s float64
-				for _, v := range m {
-					s += v
-				}
-				m = []float64{}
-				s /= 10
+			i++
+			m += data
+			if i%10 == 0 {
+				m /= 10
 				// fmt.Printf("average: %.2f\n", s)
-				o <- s
+				o <- m
+				m = 0.0
 			}
 		}
 	}()
