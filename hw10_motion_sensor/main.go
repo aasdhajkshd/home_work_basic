@@ -57,7 +57,7 @@ func averageSensorData(c <-chan float64) chan float64 {
 			m += data
 			if i%10 == 0 {
 				m /= 10
-				// fmt.Printf("average: %.2f\n", s)
+				// fmt.Printf("average: %.2f\n", m)
 				o <- m
 				m = 0.0
 			}
