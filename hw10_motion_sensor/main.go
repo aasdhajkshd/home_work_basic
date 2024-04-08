@@ -8,6 +8,7 @@ import (
 
 func readData() float64 {
 	r := rand.Float64() * 100 //nolint:gosec
+	// r := rand.Intn(100)
 	return r
 }
 
@@ -25,7 +26,7 @@ func readSensorData(s string, d time.Duration) chan map[string]float64 {
 				fmt.Println("Timer for one minute expired")
 				return
 			default:
-				time.Sleep(1 * time.Second) // для исключения "спама"
+				time.Sleep(500 * time.Millisecond) // для исключения "спама"
 			}
 		}
 	}()
@@ -57,11 +58,11 @@ func averageSensorData(c <-chan map[string]float64) <-chan map[string]float64 {
 				for _, v := range m {
 					s[i] += v
 				}
-				// fmt.Println(m, s.Value[i])
+				// fmt.Println(m, s[i])
 				if len(m)%10 == 0 {
 					m = []float64{}
 					s[i] /= 10
-					// fmt.Printf("average: %.2f\n", s.Value[i])
+					// fmt.Printf("average: %.2f\n", s[i])
 					o <- s
 				}
 			}
