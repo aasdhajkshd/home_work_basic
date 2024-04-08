@@ -25,11 +25,10 @@ func TestReadSensorData(t *testing.T) {
 			c <- s
 		}
 	}()
-    for i := range c {
-        r = append(r, i.Value["test"])
+	for i := range c {
+		r = append(r, i.Value["test"])
 	}
 	assert.Equal(t, v, r)
-
 }
 
 func TestAverageSensorData(t *testing.T) {
