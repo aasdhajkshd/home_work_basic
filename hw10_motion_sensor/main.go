@@ -22,25 +22,28 @@ func readSensorData(s string, d time.Duration) chan float64 {
 			c <- data[s]
 			select {
 			case <-t.C:
-				fmt.Println("Timer for one minute expired")
+				fmt.Println("Timer one minute expired")
 				return
 			default:
-				time.Sleep(500 * time.Millisecond) // для исключения "спама"
+				time.Sleep(1000 * time.Millisecond) // для исключения "спама"
+				fmt.Printf(".")
 			}
 		}
 	}()
 	return c
 }
 
-func displaySensorData(s string, c <-chan float64) {
+func displaySensorData(s string, c <-chan float64) chan struct{} {
+	o := make(chan struct{})
 	go func() {
-		fmt.Printf("Main goroutine started, receiving data... on channel: %v\n", c)
+		defer close(o)
 		for data := range c {
 			fmt.Println()
-			fmt.Printf("Time: %s\n", time.Now().Format("2006-01-02 15:04:05"))
 			fmt.Printf("Average sum sensor data %s: %.2f°C\n", s, data)
+			o <- struct{}{}
 		}
 	}()
+	return o
 }
 
 func averageSensorData(c <-chan float64) chan float64 {
@@ -67,11 +70,11 @@ func averageSensorData(c <-chan float64) chan float64 {
 
 func main() {
 	startTimer := time.Now()
-	t := readSensorData("temperature", 60*time.Second)
-	a := averageSensorData(t)
-	displaySensorData("temperature", a)
-	for range t {
-		fmt.Printf(".")
+	c := readSensorData("temperature", 60*time.Second)
+	a := averageSensorData(c)
+	d := displaySensorData("temperature", a)
+	for range d {
+		fmt.Printf("Time: %s\n", time.Now().Format("2006-01-02 15:04:05"))
 	}
 	endTimer := time.Now()
 	fmt.Println("Total execution time:", endTimer.Sub(startTimer))
