@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"sync"
 	"time"
 )
 
@@ -33,17 +34,18 @@ func readSensorData(s string, d time.Duration) chan float64 {
 	return c
 }
 
-func displaySensorData(s string, c <-chan float64) chan struct{} {
-	o := make(chan struct{})
+func displaySensorData(s string, c <-chan float64) {
+	var w sync.WaitGroup
+	w.Add(1)
 	go func() {
-		defer close(o)
+		defer w.Done()
 		for data := range c {
 			fmt.Println()
+			fmt.Printf("Time: %s\n", time.Now().Format("2006-01-02 15:04:05"))
 			fmt.Printf("Average sum sensor data %s: %.2f°C\n", s, data)
-			o <- struct{}{}
 		}
 	}()
-	return o
+	w.Wait()
 }
 
 func averageSensorData(c <-chan float64) chan float64 {
@@ -70,10 +72,7 @@ func main() {
 	startTimer := time.Now()
 	c := readSensorData("temperature", 60*time.Second)
 	a := averageSensorData(c)
-	d := displaySensorData("temperature", a)
-	for range d {
-		fmt.Printf("Time: %s\n", time.Now().Format("2006-01-02 15:04:05"))
-	}
+	displaySensorData("temperature", a)
 	endTimer := time.Now()
 	fmt.Println("Total execution time:", endTimer.Sub(startTimer))
 }
