@@ -33,12 +33,42 @@ func intCount(counter *int, wg *sync.WaitGroup, mutex bool) {
 	}
 }
 
-func mapCount(mapCounter *sync.Map, wg *sync.WaitGroup) {
+type MapCounters struct {
+	mx sync.Mutex
+	m  map[int]int
+}
+
+func NewCounters() *MapCounters {
+	return &MapCounters{
+		m: make(map[int]int),
+	}
+}
+
+func (c *MapCounters) Store(key, value int) {
+	c.mx.Lock()
+	defer c.mx.Unlock()
+	c.m[key] = value
+}
+
+func (c *MapCounters) Load(key int) (int, bool) {
+	c.mx.Lock()
+	defer c.mx.Unlock()
+	val, ok := c.m[key]
+	return val, ok
+}
+
+func (c *MapCounters) Inc(key int) {
+	c.mx.Lock()
+	defer c.mx.Unlock()
+	c.m[key]++
+}
+
+func mapCount(counters *MapCounters, wg *sync.WaitGroup) {
 	for i := 0; i <= countTimes; i++ {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			mapCounter.Store(0, i)
+			counters.Inc(0)
 			d := countTimes / 100
 			if i%d == 0 {
 				fmt.Printf(".")
@@ -86,15 +116,15 @@ func main() {
 		fmt.Printf("time: %v, iter: %d, counter: %d\n", endTimer.Sub(startTimer), i, c)
 	}
 
-	// Проверка по заполнению map
 	fmt.Println("Running map:")
 	for i := countIter; i > 0; i-- {
-		mc := sync.Map{}
+		mapCounter := NewCounters()
 		startTimer := time.Now()
-		mapCount(&mc, wg)
+		// mapCount(mapCounter, wg)
+		mapCount(mapCounter, wg)
 		wg.Wait()
 		endTimer := time.Now()
-		v, _ := mc.Load(0)
+		v, _ := mapCounter.Load(0)
 		fmt.Printf("time: %v, iter: %d, counter: %d\n", endTimer.Sub(startTimer), i, v)
 	}
 }
