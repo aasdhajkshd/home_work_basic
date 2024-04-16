@@ -23,7 +23,7 @@ func TestParseLog(t *testing.T) {
 		{
 			testName:      "Level info",
 			level:         Info,
-			expectedLog:   []string{"Status code 403: Forbidden: 1\n", "Status code 301: Moved Permanently: 1\n", "Status code 200: OK: 1\n"}, //nolint: lll
+			expectedLog:   []string{"Status code 200: OK: 1\n", "Status code 301: Moved Permanently: 1\n", "Status code 403: Forbidden: 1\n"}, //nolint: lll
 			expectedError: false,
 		},
 		{
