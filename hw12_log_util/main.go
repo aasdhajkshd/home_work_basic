@@ -4,33 +4,35 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"net/http"
+	"log"
 	"os"
 	"strings"
+	"unicode"
 
-	haproxy "github.com/chrishoffman/haproxylog"
 	"github.com/pkg/errors"
 )
 
-type Color string
+type color string
 
 const (
-	ColorBlack  Color = "\u001b[30m"
-	ColorRed    Color = "\u001b[31m"
-	ColorGreen  Color = "\u001b[32m"
-	ColorYellow Color = "\u001b[33m"
-	ColorBlue   Color = "\u001b[34m"
-	ColorReset  Color = "\u001b[0m"
+	ColorBlack  color  = "\u001b[30m"
+	ColorRed    color  = "\u001b[31m"
+	ColorGreen  color  = "\u001b[32m"
+	ColorYellow color  = "\u001b[33m"
+	ColorBlue   color  = "\u001b[34m"
+	ColorReset  color  = "\u001b[0m"
+	InfoStr     string = "info"
 )
 
 type logLevel int
 
 const (
 	_ logLevel = iota
-	Error
-	Warn
-	Info
-	Trace
+	ERROR
+	WARN
+	INFO
+	TRACE
+	EVENT
 )
 
 type LogLevel struct {
@@ -40,14 +42,31 @@ type LogLevel struct {
 func (l *LogLevel) setLevel(s string) {
 	s = strings.ToLower(s)
 	switch s {
-	case "error":
-		l.Value = Error
-	case "warn":
-		l.Value = Warn
-	case "info":
-		l.Value = Info
+	case "error", "err":
+		l.Value = ERROR
+	case "warning", "warn":
+		l.Value = WARN
+	case InfoStr:
+		l.Value = INFO
+	case "trace", "debug":
+		l.Value = TRACE
+	}
+}
+
+func (l LogLevel) String() string {
+	switch l.Value {
+	case ERROR:
+		return "error"
+	case WARN:
+		return "warn"
+	case INFO:
+		return InfoStr
+	case TRACE:
+		return "trace"
+	case EVENT:
+		return "event"
 	default:
-		l.Value = Trace
+		return "unknown"
 	}
 }
 
@@ -89,48 +108,27 @@ func outputLogFile(r []string, p string) error {
 	return nil
 }
 
-func parseLog(r []string, l logLevel) ([]string, error) {
-	var (
-		parsedLog   = make([]string, 0, 1000)
-		statusCodes = make(map[int64]int, 100)
-	)
-
+func countLogLevels(r []string, l LogLevel) int {
+	c := 0
 	for _, j := range r {
-		line, err := haproxy.NewLog(j)
-		if err != nil {
-			return nil, errors.Wrap(err, "Failed to parse the log line in file")
+		f := func(c rune) bool {
+			return unicode.IsSpace(c) || c == ':' // нюанс лог файла из примера "WARNING:.."
 		}
-		switch l {
-		case Warn:
-			if line.HTTPStatusCode >= 300 && line.HTTPStatusCode < 400 {
-				parsedLog = append(parsedLog, fmt.Sprintln(line.AcceptDate, line.ClientIP, line.FrontendName, line.HTTPRequest.URL))
-			}
-		case Error:
-			if line.HTTPStatusCode >= 400 {
-				parsedLog = append(parsedLog, fmt.Sprintln(line.AcceptDate, line.ClientIP, line.FrontendName, line.HTTPRequest.URL))
-			}
-		case Info:
-			if line.HTTPStatusCode > 0 {
-				statusCodes[line.HTTPStatusCode]++
-			}
-		case Trace:
-			if line.Message != "" {
-				parsedLog = append(parsedLog, fmt.Sprintln(line.AcceptDate, line.ClientIP, line.FrontendName, line.Message))
-			}
-		default:
-			if line.HTTPStatusCode > 100 {
-				parsedLog = append(parsedLog, fmt.Sprintln(line.AcceptDate, line.ClientIP, line.FrontendName, line.BackendName, line.Tr, line.HTTPRequest.URL)) //nolint:lll
-			}
+		w := strings.FieldsFunc(j, f)[4]
+
+		if l.String() == strings.ToLower(w) {
+			c++
 		}
 	}
-	for i, j := range statusCodes {
-		parsedLog = append(parsedLog, fmt.Sprintf("Status code %d: %s: %d\n", i, http.StatusText(int(i)), j))
-	}
-	return parsedLog, nil
+	return c
 }
 
 func main() {
-	var filePath, levelStr, output string
+	var (
+		filePath, levelStr, output string
+		outputText                 []string
+	)
+
 	env := map[string]string{"file": "LOG_ANALYZER_FILE", "level": "LOG_ANALYZER_LEVEL", "output": "LOG_ANALYZER_OUTPUT"}
 
 	verbose := flag.Bool("verbose", false, "verbose output")
@@ -155,7 +153,7 @@ func main() {
 	flag.Parse()
 
 	if levelStr == "" {
-		levelStr = "info"
+		levelStr = InfoStr
 	}
 
 	level := &LogLevel{}
@@ -172,19 +170,24 @@ func main() {
 
 	outputLog, err := readLogFile(filePath)
 	if err != nil {
-		errors.Errorf("whoops: %s", err)
+		log.Fatalf("whoops, check the file name: %s", err)
 	}
 
-	parsedLog, _ := parseLog(outputLog, level.Value)
+	result := countLogLevels(outputLog, *level)
+
+	outputText = append(outputText, fmt.Sprintf("Found total messages with log level "+
+		"\"%s\": %d of lines %d in file \"%s\"",
+		level.String(), result, len(outputLog), filePath))
+
 	if len(output) > 0 {
-		outputLogFile(parsedLog, "output.log")
+		outputLogFile(outputText, output)
 	} else {
-		for _, j := range parsedLog {
-			if *useColor {
-				print(string(ColorBlue))
-			}
-			fmt.Printf("%s", j)
+		if *useColor {
+			print(string(ColorBlue))
 		}
-		print(string(ColorReset))
+		for _, j := range outputText {
+			fmt.Printf("%s\n", j)
+		}
 	}
+	print(string(ColorReset))
 }
