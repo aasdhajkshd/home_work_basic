@@ -12,6 +12,17 @@ import (
 	"github.com/pkg/errors"
 )
 
+type Color string
+
+const (
+	ColorBlack  Color = "\u001b[30m"
+	ColorRed    Color = "\u001b[31m"
+	ColorGreen  Color = "\u001b[32m"
+	ColorYellow Color = "\u001b[33m"
+	ColorBlue   Color = "\u001b[34m"
+	ColorReset  Color = "\u001b[0m"
+)
+
 type logLevel int
 
 const (
@@ -120,10 +131,10 @@ func parseLog(r []string, l logLevel) ([]string, error) {
 
 func main() {
 	var filePath, levelStr, output string
-
 	env := map[string]string{"file": "LOG_ANALYZER_FILE", "level": "LOG_ANALYZER_LEVEL", "output": "LOG_ANALYZER_OUTPUT"}
 
 	verbose := flag.Bool("verbose", false, "verbose output")
+	useColor := flag.Bool("color", false, "display colorized output")
 	flag.StringVar(&filePath, "file", os.Getenv(env["file"]), "path to log file to parse, mandotary")
 	flag.StringVar(&levelStr, "level", os.Getenv(env["level"]), "log level \"error\", \"warn\", \"trace\" for details, defaults to statistics \"info\" level") //nolint:lll
 	flag.StringVar(&output, "output", os.Getenv(env["output"]), "path to file with output parsed log")
@@ -168,9 +179,12 @@ func main() {
 	if len(output) > 0 {
 		outputLogFile(parsedLog, "output.log")
 	} else {
-		fmt.Println()
 		for _, j := range parsedLog {
+			if *useColor {
+				print(string(ColorBlue))
+			}
 			fmt.Printf("%s", j)
 		}
+		print(string(ColorReset))
 	}
 }
