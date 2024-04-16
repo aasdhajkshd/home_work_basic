@@ -15,13 +15,12 @@ import (
 type color string
 
 const (
-	ColorBlack  color  = "\u001b[30m"
-	ColorRed    color  = "\u001b[31m"
-	ColorGreen  color  = "\u001b[32m"
-	ColorYellow color  = "\u001b[33m"
-	ColorBlue   color  = "\u001b[34m"
-	ColorReset  color  = "\u001b[0m"
-	InfoStr     string = "info"
+	ColorBlack  color = "\u001b[30m"
+	ColorRed    color = "\u001b[31m"
+	ColorGreen  color = "\u001b[32m"
+	ColorYellow color = "\u001b[33m"
+	ColorBlue   color = "\u001b[34m"
+	ColorReset  color = "\u001b[0m"
 )
 
 type logLevel int
@@ -46,7 +45,7 @@ func (l *LogLevel) setLevel(s string) {
 		l.Value = ERROR
 	case "warning", "warn":
 		l.Value = WARN
-	case InfoStr:
+	case "info": //nolint:goconst
 		l.Value = INFO
 	case "trace", "debug":
 		l.Value = TRACE
@@ -60,7 +59,7 @@ func (l LogLevel) String() string {
 	case WARN:
 		return "warn"
 	case INFO:
-		return InfoStr
+		return "info"
 	case TRACE:
 		return "trace"
 	case EVENT:
@@ -153,7 +152,7 @@ func main() {
 	flag.Parse()
 
 	if levelStr == "" {
-		levelStr = InfoStr
+		levelStr = "info"
 	}
 
 	level := &LogLevel{}
