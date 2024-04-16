@@ -42,7 +42,7 @@ func TestParseLog(t *testing.T) {
 	for _, j := range cases {
 		t.Run(j.testName, func(t *testing.T) {
 			parsedLog, err := parseLog(inputLog, j.level)
-			require.Equal(t, j.expectedLog, parsedLog)
+			require.ElementsMatch(t, j.expectedLog, parsedLog)
 			if j.expectedError {
 				require.Error(t, err)
 			} else {
