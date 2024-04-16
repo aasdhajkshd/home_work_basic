@@ -22,7 +22,7 @@ func TestCountLogLevels(t *testing.T) {
 		{
 			testName:      "Level warn",
 			levelStr:      "warn",
-			expectedCount: 0,
+			expectedCount: 4,
 			expectedError: false,
 		},
 		{
