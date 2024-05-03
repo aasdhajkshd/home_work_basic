@@ -2,6 +2,7 @@
 
 - [Understanding HTTP Server in Go](https://surajincloud.com/understanding-http-server-in-go-basic)
 - [Разработка веб-серверов на Golang — от простого к сложному](https://habr.com/ru/companies/skillbox/articles/446454/)
+- [Testing Golang with httptest](https://speedscale.com/blog/testing-golang-with-httptest/)
 
 ## Сторона сервера
 
