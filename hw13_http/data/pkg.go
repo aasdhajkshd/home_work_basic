@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// Пример структуры API для клиента БД из следующих уроков.
 type User struct {
 	ID       int    `json:"id"`    // уникальный идентификатор
 	Name     string `json:"name"`  // имя пользователя
@@ -15,6 +16,7 @@ type User struct {
 	Password string `json:"-"`     // пароль
 }
 
+//nolint:tagliatelle
 type Order struct {
 	ID          int       `json:"id"`           // идентификатор заказа
 	UserID      int       `json:"user_id"`      // идентификатор пользователя
@@ -41,13 +43,14 @@ func ReadJSON(f string) Data {
 	if err != nil {
 		log.Fatalf("Read file failed: %v", err)
 	}
-	if err := json.Unmarshal(data, &jsonData); err != nil {
+	err = json.Unmarshal(data, &jsonData)
+	if err != nil {
 		log.Fatalf("JSON failed to parse: %v", err)
 	}
 	return jsonData
 }
 
-// Пример использования данных
+// Пример использования данных.
 func PrintData(f string) {
 	data := ReadJSON(f)
 
@@ -58,7 +61,8 @@ func PrintData(f string) {
 
 	fmt.Println("\nЗаказы:")
 	for _, order := range data.Orders {
-		fmt.Printf("ID заказа: %d, ID пользователя: %d, Дата заказа: %s, Сумма заказа: %.2f\n", order.ID, order.UserID, order.OrderDate, order.TotalAmount)
+		fmt.Printf("ID заказа: %d, ID пользователя: %d, Дата заказа: %s, Сумма заказа: %.2f"+
+			"\n", order.ID, order.UserID, order.OrderDate, order.TotalAmount)
 		fmt.Printf("Товары в заказе: ")
 		for _, productID := range order.Products {
 			fmt.Printf("%d ", productID)

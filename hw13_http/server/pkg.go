@@ -19,6 +19,7 @@ import (
 
 const jsonFile = "data/data.json"
 
+// Используется для примера (дублирует из data json).
 type User struct {
 	ID       int    `json:"id"`    // уникальный идентификатор
 	Name     string `json:"name"`  // имя пользователя
@@ -26,24 +27,8 @@ type User struct {
 	Password string `json:"-"`     // пароль
 }
 
-type Order struct {
-	ID          int       `json:"id"`           // идентификатор заказа
-	UserID      int       `json:"user_id"`      // идентификатор пользователя
-	OrderDate   time.Time `json:"order_date"`   // дата заказа
-	TotalAmount float32   `json:"total_amount"` // общяя стоимость заказов
-	Products    []int     `json:"products"`
-}
-
-type Product struct {
-	ID    int     `json:"id"`    // идентификатор товара
-	Name  string  `json:"name"`  // название
-	Price float32 `json:"price"` // цена
-}
-
 type Data struct {
-	Users    []User    `json:"users"`
-	Orders   []Order   `json:"orders"`
-	Products []Product `json:"products"`
+	Users []User `json:"users"`
 }
 
 type State string
@@ -54,7 +39,9 @@ const (
 )
 
 const (
-	timeout time.Duration = 60 * time.Second
+	timeout           time.Duration = 60 * time.Second
+	idleTimeout       time.Duration = 15 * time.Second
+	readHeaderTimeout time.Duration = 15 * time.Second
 )
 
 type Web struct {
@@ -65,9 +52,10 @@ type Web struct {
 func NewWeb(ip, port string, handler http.Handler) *Web {
 	return &Web{
 		web: http.Server{
-			Addr:        ip + ":" + port,
-			IdleTimeout: timeout,
-			Handler:     handler,
+			Addr:              ip + ":" + port,
+			IdleTimeout:       idleTimeout,
+			ReadHeaderTimeout: readHeaderTimeout,
+			Handler:           handler,
 		},
 		state: StateStopped,
 	}
@@ -79,8 +67,11 @@ func (s *Web) StartWeb() error {
 	}
 	go func() {
 		err := s.web.ListenAndServe()
-		if err != nil && err != http.ErrServerClosed {
-			log.Fatalf("web server serving failure: %v", err)
+		// ListenAndServe always returns a non-nil error.
+		// Comparing with != will fail on wrapped errors.
+		// Use errors.Is to check for a specific error.
+		if !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("Web server serving failure: %v", err)
 		}
 	}()
 
@@ -102,24 +93,22 @@ func HandlerHello(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlerUsers(w http.ResponseWriter, r *http.Request) {
-	usersJSON, err := json.Marshal(readJSON(jsonFile).Users)
-	if err != nil {
-		http.Error(w, "Error encoding", http.StatusInternalServerError)
-		return
-	}
 	log.Printf("Received request: %s %s", r.Method, r.URL.Path)
 	switch r.Method {
 	case http.MethodPost:
 		defer r.Body.Close()
 		data, err := io.ReadAll(r.Body)
 		if err != nil {
-			log.Fatalf("impossible to read all POST body: %s", err)
+			log.Printf("Failed to read all POST body: %s", err)
+			http.Error(w, "Failed to read POST body", http.StatusInternalServerError)
+			return
 		}
 		// пример для получения данных для создания нового пользователя
 		var newUser User
 		fmt.Printf("%v", string(data))
 		w.Header().Set("Content-Type", "text/plain")
-		if err := json.Unmarshal(data, &newUser); err != nil {
+		if err = json.Unmarshal(data, &newUser); err != nil {
+			log.Printf("Failed to decode JSON data: %s", err)
 			http.Error(w, "Error decoding JSON", http.StatusInternalServerError)
 		} else {
 			fmt.Printf("Reveived JSON data, decoded: %v\n", newUser)
@@ -127,8 +116,13 @@ func handlerUsers(w http.ResponseWriter, r *http.Request) {
 		}
 		// по-умолчанию выдаём запрощенные данные пользователей без пароля
 	default:
+		data, err := json.Marshal(readJSON(jsonFile).Users)
+		if err != nil {
+			http.Error(w, "Error encoding", http.StatusInternalServerError)
+			return
+		}
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(usersJSON)
+		w.Write(data)
 	}
 }
 
@@ -148,16 +142,16 @@ func (s *Web) StopWeb() error {
 }
 
 func readJSON(f string) Data {
-	var j Data
-	d, err := os.ReadFile(f)
+	var jsonData Data
+	data, err := os.ReadFile(f)
 	if err != nil {
 		log.Fatalf("Read file failed: %v", err)
 	}
-	if err := json.Unmarshal(d, &j); err != nil {
+	err = json.Unmarshal(data, &jsonData)
+	if err != nil {
 		log.Fatalf("JSON failed to parse: %v", err)
 	}
-
-	return j
+	return jsonData
 }
 
 var (
