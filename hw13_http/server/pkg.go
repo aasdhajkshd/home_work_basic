@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"strings"
@@ -81,10 +82,20 @@ func (s *Web) StartWeb() error {
 }
 
 func HandlerHello(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Received request: %s %s", r.Method, r.URL.Path)
+	log.Printf("Received request: %s %s %s", r.Method, r.URL.Path, r.URL.RawQuery)
 	switch r.Method {
 	case http.MethodPost:
-		w.Write([]byte("Привет, пишете письмо?"))
+		query, err := url.ParseQuery(r.URL.RawQuery)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+		}
+		w.WriteHeader(http.StatusOK)
+		name := query.Get("name")
+		if len(name) > 0 {
+			fmt.Fprintf(w, "ehlo %s", name)
+		} else {
+			fmt.Fprint(w, "Привет, пишете письмо?")
+		}
 	case http.MethodGet:
 		w.Write([]byte("Привет, мой друг!"))
 	default:
@@ -112,7 +123,7 @@ func handlerUsers(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Error decoding JSON", http.StatusInternalServerError)
 		} else {
 			fmt.Printf("Reveived JSON data, decoded: %v\n", newUser)
-			http.Error(w, "OK", http.StatusOK)
+			w.WriteHeader(http.StatusOK)
 		}
 		// по-умолчанию выдаём запрощенные данные пользователей без пароля
 	default:

@@ -10,20 +10,14 @@ func TestRequestURL(t *testing.T) {
 		expectedResult    bool
 	}{
 		{
-			name:           "S is unavailable", // блокировка на уровне провайдера
-			url:            "https://www.digitalocean.com",
-			method:         "GET",
-			expectedResult: true,
-		},
-		{
 			name:           "URL is available",
-			url:            "https://phet-dev.colorado.edu/html/build-an-atom/0.0.0-3/simple-text-only-test-page.html",
+			url:            "https://go.dev/play",
 			method:         "GET",
 			expectedResult: false,
 		},
 		{
-			name:           "localhost URL is refused",
-			url:            "https://localhost:8083",
+			name:           "URL localhost is refused",
+			url:            "http://localhost:8081/hello",
 			method:         "GET",
 			expectedResult: true,
 		},
