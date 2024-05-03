@@ -38,8 +38,6 @@ func TestRunServer(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error: %v", err)
 		}
-		if string(data) != expectedResult {
-			t.Errorf("Expected %s but got %v", expectedResult, string(data))
-		}
+		assert.Equal(t, string(data), expectedResult)
 	})
 }
