@@ -45,8 +45,8 @@ CREATE TABLE orderproducts
     id SERIAL NOT NULL PRIMARY KEY,
     order_id INT NOT NULL,
     product_id INT NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES orders (id),
-    FOREIGN KEY (product_id) REFERENCES products (id)
+    FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_users_email ON users (email);
