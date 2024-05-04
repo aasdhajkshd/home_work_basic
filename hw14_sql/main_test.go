@@ -1,9 +1,9 @@
 package main
 
 import (
-    "testing"
+	"testing"
 )
 
 func TestFake(t *testing.T) {
-    t.Log("Fake main_test.go")
+	t.Log("Fake main_test.go")
 }
