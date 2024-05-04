@@ -1,0 +1,79 @@
+name: otus
+services:
+  postgresql:
+    image: postgres:15-alpine
+    container_name: postgresql
+    environment:
+      LANG: en_US.utf8
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_TIMEZONE: "Europe/Moscow"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+      POSTGRES_INITDB_WALDIR: "/var/log/postgresql"
+      TZ: "Europe/Moscow"
+    ports:
+      - "5432:5432/tcp"
+    expose:
+      - 5432
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+      - postgresql_log:/var/log/postgresql
+      - ./postgres-initdb/:/docker-entrypoint-initdb.d
+    networks:
+      - homework
+    command: ["postgres", "-c", "logging_collector=on", "-c", "log_directory=/var/log/postgresql", "-c", "log_filename=postgresql.log", "-c", "log_statement=all"]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: on-failure:5
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-password}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_ENABLE_TLS: 'False'
+      PGADMIN_LISTEN_ADDRESS: 0.0.0.0
+      PGADMIN_LISTEN_PORT: 80
+      PGADMIN_DEFAULT_SERVER: localhost:5432
+      PGADMIN_CONFIG_CONSOLE_LOG_LEVEL: 10
+      TZ: "Europe/Moscow"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+       postgresql:
+         condition: service_healthy
+    networks:
+      - homework
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+networks:
+  homework:
+    driver: bridge
+
+volumes:
+  postgresql_data:
+    labels:
+      pg.description: "database volume"
+  postgresql_conf:
+  postgresql_log:
+    labels:
+      pg.description: "postgresql log"
+  pgadmin_data:
