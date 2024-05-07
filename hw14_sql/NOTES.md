@@ -66,3 +66,37 @@ SELECT z.product_id, p.price FROM orderproducts AS z LEFT JOIN products AS p ON 
 SELECT order_id, price FROM products, orderproducts WHERE orderproducts.product_id=products.id;
 SELECT order_id, total_amount FROM orders, orderproducts WHERE orderproducts.order_id=orders.id;
 ```
+
+## Транзакции
+
+```sql
+CREATE OR REPLACE PROCEDURE make_order(IN _user_id int, IN _total_amount int, IN _product_id_list int[])
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    _seq INT;
+    _product_id INT;
+BEGIN
+    SELECT nextval(pg_get_serial_sequence('orders', 'id')) INTO _seq;
+    INSERT INTO orders (id, user_id, order_date, total_amount) VALUES (_seq, _user_id, now(), _total_amount);
+    FOREACH _product_id IN ARRAY _product_id_list
+        LOOP
+            INSERT INTO orderproducts (order_id, product_id) VALUES (_seq, _product_id);
+        END LOOP;
+    COMMIT;
+END;
+$$;
+
+SELECT proname, prosrc
+FROM pg_proc
+WHERE proname = 'make_order';
+
+SELECT EXISTS (
+    SELECT 1
+    FROM pg_proc
+    WHERE proname = 'make_order'
+);
+
+CALL make_order(1, 99, ARRAY[1, 2, 3]);
+CALL make_order(10, 500, ARRAY[1, 2, 3]);
+```
