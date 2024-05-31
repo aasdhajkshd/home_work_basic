@@ -1,6 +1,6 @@
 module github.com/aasdhajkshd/home_work_basic/hw15_go_sql
 
-go 1.20.0
+go 1.20
 
 require (
 	github.com/gorilla/mux v1.8.1
