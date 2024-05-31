@@ -20,11 +20,25 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
+      - name: Download dependencies
+        run: |
+          go mod tidy
+          go mod download
+        working-directory: ${{ env.BRANCH }}
+
+      - name: Compile the project
+        run: go build ./...
+        working-directory: ${{ env.BRANCH }}
+
       - name: Linters
         uses: golangci/golangci-lint-action@v3
         with:
           version: v1.59.0
           working-directory: ${{ env.BRANCH }}
+        env:
+          GO111MODULE: "on"
+        run: |
+          golangci-lint run -v --config ./.golangci.yml --issues-exit-code 0 --print-issued-lines=true
 
   tests:
     runs-on: ubuntu-latest
@@ -54,9 +68,15 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
+      - name: Download dependencies
+        run: |
+          go mod tidy
+          go mod download
+        working-directory: ${{ env.BRANCH }}
+
       - name: Wait for PostgreSQL to be ready
         run: |
-          until pg_isready -h localhost -p 5432 -U manager; do
+          until pg_isready -h postgres -p 5432 -U manager; do
             echo "Waiting for PostgreSQL...";
             sleep 2;
           done
