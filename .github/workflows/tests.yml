@@ -33,7 +33,8 @@ jobs:
       - name: Linters
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.59.0
+          version: v1.54
+          cache: false
           working-directory: ${{ env.BRANCH }}
           args: --out-format=colored-line-number
 
