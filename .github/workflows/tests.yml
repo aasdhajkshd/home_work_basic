@@ -50,8 +50,8 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd "pg_isready -U manager"
-          --health-interval 10s
-          --health-timeout 5s
+          --health-interval 60s
+          --health-timeout 30s
           --health-retries 5
     steps:
       - name: Extract branch name
@@ -84,7 +84,7 @@ jobs:
 
       - name: Run unit tests
         env:
-          POSTGRES_HOST: localhost
+          POSTGRES_HOST: postgres
           POSTGRES_PORT: 5432
           POSTGRES_DB: onlinestore_test
           POSTGRES_USER: manager
