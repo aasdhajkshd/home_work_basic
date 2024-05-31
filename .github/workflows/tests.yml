@@ -35,6 +35,7 @@ jobs:
         with:
           version: v1.59.0
           working-directory: ${{ env.BRANCH }}
+          args: --out-format=colored-line-number
 
   tests:
     runs-on: ubuntu-latest
