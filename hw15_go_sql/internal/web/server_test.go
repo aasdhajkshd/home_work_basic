@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	testDsn string = "postgres://manager:password@localhost:5432/onlinestore_test?sslmode=disable&pool_max_conns=100"
+	testDsn string = "postgres://manager:password@postgres:5432/onlinestore_test?sslmode=disable&pool_max_conns=100"
 )
 
 func TestHandler(t *testing.T) {

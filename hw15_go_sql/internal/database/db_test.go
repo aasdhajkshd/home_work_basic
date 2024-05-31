@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	dsnURI          = "postgres://manager:password@postgresql:5432/onlinestore_test?sslmode=disable&pool_max_conns=100"
+	dsnURI          = "postgres://manager:password@postgres:5432/onlinestore_test?sslmode=disable&pool_max_conns=100"
 	userEmail       = "johndoe@example.com"
 	userNewEmail    = "johnydoe@example.ru"
 	userName        = "John Doe"
