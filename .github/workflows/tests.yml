@@ -1,4 +1,4 @@
-name: Otus homework tests
+name: My otus homework tests
 
 on:
   push:
@@ -35,10 +35,6 @@ jobs:
         with:
           version: v1.59.0
           working-directory: ${{ env.BRANCH }}
-        env:
-          GO111MODULE: "on"
-        run: |
-          golangci-lint run -v --config ./.golangci.yml --issues-exit-code 0 --print-issued-lines=true
 
   tests:
     runs-on: ubuntu-latest
