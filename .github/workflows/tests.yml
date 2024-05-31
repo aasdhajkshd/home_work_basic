@@ -32,7 +32,7 @@ jobs:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_DB: notes_test
+          POSTGRES_DB: onlinestore_test
           POSTGRES_USER: manager
           POSTGRES_PASSWORD: password
         ports:
