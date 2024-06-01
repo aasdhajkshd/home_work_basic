@@ -64,7 +64,7 @@ func TestHandler(t *testing.T) {
 			method:         http.MethodGet,
 			path:           "/order?id=1",
 			expectedStatus: http.StatusOK,
-			expectedResult: `{"id":1,"userId":0,"orderDate":"1970-01-01T03:00:00Z","totalAmount":200,"products":{"List":[{"id":1,"name":"Phone","price":500},{"id":2,"name":"Laptop","price":1500}]}}`, //nolint:lll
+			expectedResult: `{"id":1,"userId":0,"orderDate":"1970-01-01T00:00:00Z","totalAmount":200,"products":{"List":[{"id":1,"name":"Phone","price":500},{"id":2,"name":"Laptop","price":1500}]}}`, //nolint:lll
 		},
 	}
 
