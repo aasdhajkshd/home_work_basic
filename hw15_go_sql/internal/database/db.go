@@ -52,6 +52,7 @@ func roundToDecimal(n float64, r int) float64 {
 func (s *PgxPool) InitDB() error {
 	// Создание таблиц
 	stmt := `
+	SET timezone TO 'UTC';
 	CREATE TABLE IF NOT EXISTS users
 	(
 		id SERIAL NOT NULL PRIMARY KEY,
@@ -96,10 +97,10 @@ func (s *PgxPool) InitDB() error {
 func (s *PgxPool) DropTables() error {
 	// Создание таблиц
 	stmt := `
-	DROP TABLE IF EXISTS orderproducts;
-	DROP TABLE IF EXISTS orders;
-	DROP TABLE IF EXISTS products;
-	DROP TABLE IF EXISTS users;`
+	DROP TABLE IF EXISTS orderproducts CASCADE;
+	DROP TABLE IF EXISTS orders CASCADE;
+	DROP TABLE IF EXISTS products CASCADE;
+	DROP TABLE IF EXISTS users CASCADE;`
 
 	_, err := s.pool.Exec(s.ctx, stmt)
 	return err

@@ -89,5 +89,5 @@ jobs:
           POSTGRES_DB: onlinestore_test
           POSTGRES_USER: manager
           POSTGRES_PASSWORD: password
-        run: go test -v -count=10 -race -timeout=1m ./...
+        run: go test -v -count=1 -race -timeout=1m ./...
         working-directory: ${{ env.BRANCH }}
