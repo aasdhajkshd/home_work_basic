@@ -439,7 +439,6 @@ func (s *PgxPool) AddOrder(order *models.Order) (int, error) {
 	args = []interface{}{order.UserID, order.OrderDate, order.TotalAmount}
 
 	err = tx.QueryRow(s.ctx, stmt, args...).Scan(&id)
-
 	if err != nil {
 		tx.Rollback(s.ctx)
 		return 0, err
