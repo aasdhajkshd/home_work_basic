@@ -93,16 +93,13 @@ func (s *PgxPool) InitDB() error {
 }
 
 // Инициализация структуры БД.
-func (s *PgxPool) ResetDB() error {
+func (s *PgxPool) DropTables() error {
 	// Создание таблиц
 	stmt := `
-	DELETE FROM orderproducts;
-	DELETE FROM orders;
-	DELETE FROM products;
-	DELETE FROM users;
-	ALTER SEQUENCE users_id_seq RESTART WITH 1;
-	ALTER SEQUENCE orders_id_seq RESTART WITH 1;
-	ALTER SEQUENCE products_id_seq RESTART WITH 1;`
+	DROP TABLE IF EXISTS orderproducts;
+	DROP TABLE IF EXISTS orders;
+	DROP TABLE IF EXISTS products;
+	DROP TABLE IF EXISTS users;`
 
 	_, err := s.pool.Exec(s.ctx, stmt)
 	return err

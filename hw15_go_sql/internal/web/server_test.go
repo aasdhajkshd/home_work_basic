@@ -73,8 +73,8 @@ func TestHandler(t *testing.T) {
 		t.Fatalf("Failed to create DB connection: %v", err)
 	}
 	defer db.Close()
+	db.DropTables()
 	db.InitDB()
-	db.ResetDB()
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -107,5 +107,4 @@ func TestHandler(t *testing.T) {
 			assert.JSONEqf(t, tc.expectedResult, w.Body.String(), "Expected response result don't match")
 		})
 	}
-	db.ResetDB()
 }
