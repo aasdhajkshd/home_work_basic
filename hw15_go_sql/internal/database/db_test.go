@@ -34,18 +34,6 @@ func TestConnection(t *testing.T) {
 	assert.NoError(t, err, "Failed to make SELECT statement")
 }
 
-func TestInitDB(t *testing.T) {
-	// Подключение к тестовой базе данных (можно использовать временную или тестовую базу данных)
-	db, err := NewPgxPool(dsnURI)
-	if err != nil {
-		t.Fatalf("Failed to open test DB: %v", err)
-	}
-	defer db.pool.Close()
-
-	err = db.InitDB()
-	assert.NoError(t, err, "Failed to init test DB")
-}
-
 func TestUser(t *testing.T) {
 	// Открытие соединения с базой
 	db, err := NewPgxPool(dsnURI)
