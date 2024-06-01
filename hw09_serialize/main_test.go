@@ -27,7 +27,7 @@ func TestMarshallerJSON(t *testing.T) {
 				Rate:    4.1,
 				Title:   "Title",
 				Author:  "Author",
-				Updated: time.Date(2019, 01, 01, 01, 0, 0, 0, time.UTC), //nolint:gofumpt
+				Updated: time.Date(2019, 0o1, 0o1, 0o1, 0, 0, 0, time.UTC), //nolint:gofumpt
 			},
 			ExpectedResult: "{\"updated\":1546304400,\"id\":1234567890,\"year\":2024,\"size\":101,\"rate\":4.1,\"title\":\"Title\",\"author\":\"Author\"}", //nolint:lll
 		},

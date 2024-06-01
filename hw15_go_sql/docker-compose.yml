@@ -1,0 +1,50 @@
+name: otus
+services:
+  postgresql:
+    image: postgres:15-alpine
+    container_name: postgresql
+    environment:
+      LANG: en_US.utf8
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_TIMEZONE: "Europe/Moscow"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+      POSTGRES_INITDB_WALDIR: "/var/log/postgresql"
+      TZ: "Europe/Moscow"
+    ports:
+      - "5432:5432/tcp"
+    expose:
+      - 5432
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+      - postgresql_log:/var/log/postgresql
+      - ./.initdb:/docker-entrypoint-initdb.d
+    networks:
+      - homework
+    command: ["postgres", "-c", "logging_collector=on", "-c", "log_directory=/var/log/postgresql", "-c", "log_filename=postgresql.log", "-c", "log_statement=all"]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: on-failure:5
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+networks:
+  homework:
+    driver: bridge
+
+volumes:
+  postgresql_data:
+    labels:
+      pg.description: "database volume"
+  postgresql_conf:
+  postgresql_log:
+    labels:
+      pg.description: "postgresql log"
+  pgadmin_data:

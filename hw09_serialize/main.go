@@ -85,7 +85,7 @@ func DeserializeBooksJSON(data []byte) ([]Book, error) {
 }
 
 func bookToFile(filename string, data []byte) error {
-	if err := os.WriteFile(filename, data, 0644); err != nil { //nolint:gofumpt,gosec
+	if err := os.WriteFile(filename, data, 0o644); err != nil { //nolint:gofumpt,gosec
 		log.Fatalln("Failed to write data to book:", err)
 		return err
 	}

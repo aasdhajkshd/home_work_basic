@@ -1,4 +1,4 @@
-name: Otus homework tests
+name: My otus homework tests
 
 on:
   push:
@@ -15,19 +15,44 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: ~1.19
+          go-version: ~1.20
 
       - name: Check out code
         uses: actions/checkout@v3
 
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            /go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
       - name: Linters
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.53.3
+          version: v1.54.2
           working-directory: ${{ env.BRANCH }}
+          args: --out-format=colored-line-number
 
   tests:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: onlinestore_test
+          POSTGRES_USER: manager
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U manager"
+          --health-interval 60s
+          --health-timeout 30s
+          --health-retries 5
     steps:
       - name: Extract branch name
         run: echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
@@ -35,11 +60,34 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: ^1.19
+          go-version: ^1.20
 
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Unit tests
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            /go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          until pg_isready -h localhost -p 5432 -U manager; do
+            echo "Waiting for PostgreSQL...";
+            sleep 10;
+          done
+
+      - name: Run unit tests
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: onlinestore_test
+          POSTGRES_USER: manager
+          POSTGRES_PASSWORD: password
         run: go test -v -count=1 -race -timeout=1m ./...
         working-directory: ${{ env.BRANCH }}
