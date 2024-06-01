@@ -55,7 +55,7 @@ func TestHandler(t *testing.T) {
 			name:           "POST order",
 			method:         http.MethodPost,
 			path:           "/order",
-			body:           models.Order{UserID: 1, OrderDate: time.Unix(0, 0).UTC(), TotalAmount: 200, Products: models.Products{List: []models.Product{{ID: 1, Name: "Phone", Price: 500.0}, {ID: 2, Name: "Laptop", Price: 1500.0}}}}, //nolint:lll
+			body:           models.Order{UserID: 1, OrderDate: time.Unix(0, 0), TotalAmount: 200, Products: models.Products{List: []models.Product{{ID: 1, Name: "Phone", Price: 500.0}, {ID: 2, Name: "Laptop", Price: 1500.0}}}}, //nolint:lll
 			expectedStatus: http.StatusCreated,
 			expectedResult: `{"id":1}`,
 		},
