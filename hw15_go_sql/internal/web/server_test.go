@@ -55,7 +55,7 @@ func TestHandler(t *testing.T) {
 			name:           "POST order",
 			method:         http.MethodPost,
 			path:           "/order",
-			body:           models.Order{UserID: 1, OrderDate: time.Date(2000, 2, 1, 12, 30, 0, 0, time.UTC), TotalAmount: 200, Products: models.Products{List: []models.Product{{ID: 1, Name: "Phone", Price: 500.0}, {ID: 2, Name: "Laptop", Price: 1500.0}}}}, //nolint:lll
+			body:           models.Order{UserID: 1, OrderDate: time.Unix(0, 0).UTC(), TotalAmount: 200, Products: models.Products{List: []models.Product{{ID: 1, Name: "Phone", Price: 500.0}, {ID: 2, Name: "Laptop", Price: 1500.0}}}}, //nolint:lll
 			expectedStatus: http.StatusCreated,
 			expectedResult: `{"id":1}`,
 		},
@@ -64,7 +64,7 @@ func TestHandler(t *testing.T) {
 			method:         http.MethodGet,
 			path:           "/order?id=1",
 			expectedStatus: http.StatusOK,
-			expectedResult: `{"id":1,"userId":0,"orderDate":"2000-02-01T12:30:00Z","totalAmount":200,"products":{"List":[{"id":1,"name":"Phone","price":500},{"id":2,"name":"Laptop","price":1500}]}}`, //nolint:lll
+			expectedResult: `{"id":1,"userId":0,"orderDate":"1970-01-01T00:00:00Z","totalAmount":200,"products":{"List":[{"id":1,"name":"Phone","price":500},{"id":2,"name":"Laptop","price":1500}]}}`, //nolint:lll
 		},
 	}
 
