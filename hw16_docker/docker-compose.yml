@@ -1,7 +1,7 @@
 name: otus
 services:
   postgresql:
-    image: postgres:15-alpine
+    image: registry.gitlab.com/go-basic-2023-11/hw16-docker/postgres:15-alpine
     container_name: postgresql
     environment:
       LANG: en_US.utf8
@@ -37,7 +37,7 @@ services:
 
   onlinestore:
     container_name: onlinestore
-    build: .
+    image: registry.gitlab.com/go-basic-2023-11/hw16-docker/onlinestore:0.0.1
     restart: always
     hostname: onlinestore
     ports:
@@ -61,4 +61,3 @@ volumes:
   postgresql_log:
     labels:
       pg.description: "postgresql log"
-  pgadmin_data:

@@ -13,13 +13,15 @@ import (
 )
 
 const (
-	dsn string = "postgres://manager:password@localhost:5432/onlinestore?sslmode=disable&pool_max_conns=100"
+	defaultDSN  = "postgres://manager:password@postgresql:5432/onlinestore?sslmode=disable&pool_max_conns=10"
+	defaultHost = "0.0.0.0"
+	defaultPort = "8888"
 )
 
 var (
-	address = flag.String("address", "localhost", "HTTP web service address")
-	port    = flag.String("port", "8888", "HTTP web service port")
-	verbose = flag.Bool("verbose", false, "Verbose output")
+	address = flag.String("address", defaultHost, "HTTP web service address")
+	port    = flag.String("port", defaultPort, "HTTP web service port")
+	dsn     = flag.String("dsn", defaultDSN, "DSN URI string")
 )
 
 // Запуск приложения, включая веб-сервис.
@@ -31,7 +33,7 @@ func RunServer() {
 	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
 
 	// Создается новое подключение к ДБ
-	db, err := database.NewPgxPool(dsn)
+	db, err := database.NewPgxPool(*dsn)
 	if err != nil {
 		log.Fatalf("Failed to create PgxPool: %v", err)
 	}
@@ -62,12 +64,6 @@ func RunServer() {
 
 func main() {
 	flag.Parse()
-
-	if *verbose {
-		for i, j := range flag.Args() {
-			print("parsed arguments:", i, j)
-		}
-	}
 
 	print("Starting 'server'...\n")
 	RunServer()
